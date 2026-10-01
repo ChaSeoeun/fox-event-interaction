@@ -1,0 +1,239 @@
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+html,
+body {
+    width: 100%;
+    min-height: 100%;
+}
+
+body {
+    overflow-x: hidden;
+    font-family: Arial, sans-serif;
+    background: #fff;
+}
+
+button {
+    font: inherit;
+}
+
+.event-wrap {
+    position: relative;
+    width: 100%;
+}
+
+.event-intro {
+    position: relative;
+    width: 100%;
+    height: 100vh;
+    height: 100svh;
+    overflow: hidden;
+    background: #7ec8ff;
+    z-index: 10;
+}
+
+.park-stage {
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    width: 3438px;
+    height: 2077px;
+    transform: translate(-1742px, -1354px);
+    transform-origin: 1742px 1354px;
+    background: #7ec8ff;
+    will-change: transform;
+}
+
+.park-bg {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+    display: block;
+    z-index: 1;
+    user-select: none;
+    pointer-events: none;
+}
+
+.gate {
+    position: absolute;
+    inset: 0;
+    perspective: 2800px;
+    perspective-origin: 1742px 1388px;
+    z-index: 5;
+    pointer-events: none;
+}
+
+.gate-door {
+    position: absolute;
+    width: 480.8px;
+    height: auto;
+    will-change: transform;
+    backface-visibility: hidden;
+    user-select: none;
+    pointer-events: none;
+    filter: drop-shadow(0 8px 8px rgba(0, 0, 0, .14));
+}
+
+.gate-door-left {
+    left: 1316.2px;
+    top: 1139.2px;
+    transform-origin: 18% 50%;
+}
+
+.gate-door-right {
+    left: 1679.8px;
+    top: 1139.2px;
+    transform-origin: 82% 50%;
+}
+
+.intro-flash {
+    position: fixed;
+    inset: 0;
+    background: radial-gradient(
+        circle at 50% 46%,
+        #fff 0%,
+        #fff 38%,
+        #fff6dc 100%
+    );
+    opacity: 0;
+    pointer-events: none;
+    z-index: 30;
+}
+
+.intro-ui {
+    position: absolute;
+    left: 50%;
+    bottom: clamp(38px, 6vh, 80px);
+    transform: translateX(-50%);
+    z-index: 20;
+    text-align: center;
+    color: #fff;
+}
+
+.intro-guide {
+    margin-bottom: 15px;
+    font-size: clamp(14px, 1.05vw, 18px);
+    font-weight: 700;
+    text-shadow: 0 2px 5px rgba(0, 0, 0, .4);
+}
+
+.enter-btn {
+    position: relative;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    min-width: 190px;
+    height: 58px;
+    padding: 0 30px;
+    border: 3px solid #fff;
+    border-radius: 50px;
+    background: #075ecf;
+    color: #fff;
+    font-size: 18px;
+    font-weight: 800;
+    cursor: pointer;
+    box-shadow:
+        0 6px 0 #03449c,
+        0 12px 30px rgba(0, 0, 0, .25);
+    transition:
+        transform .2s ease,
+        background .2s ease,
+        box-shadow .2s ease;
+}
+
+.enter-btn::before {
+    content: "";
+    position: absolute;
+    inset: 3px;
+    border: 1px solid rgba(255, 255, 255, .35);
+    border-radius: inherit;
+    pointer-events: none;
+}
+
+.enter-btn:hover {
+    transform: translateY(-4px);
+    background: #1674ed;
+    box-shadow:
+        0 8px 0 #03449c,
+        0 16px 32px rgba(0, 0, 0, .3);
+}
+
+.enter-btn:active {
+    transform: translateY(3px);
+    box-shadow: 0 2px 0 #03449c;
+}
+
+.enter-btn-arrow {
+    display: inline-block;
+    font-size: 13px;
+    transform: translateX(0);
+}
+
+.enter-sub {
+    margin-top: 16px;
+    font-size: 10px;
+    font-weight: 800;
+    letter-spacing: 3px;
+    opacity: .9;
+    text-shadow: 0 2px 5px rgba(0, 0, 0, .4);
+}
+
+.section01 {
+    display: none;
+    position: relative;
+    width: 100%;
+    height: 100vh;
+    height: 100svh;
+    overflow: hidden;
+    background: #000 url("../images/event-park-bg.png") center / cover no-repeat;
+}
+
+.freddy {
+    position: absolute;
+    left: 0;
+    top: 0;
+    height: clamp(80px, 10vh, 120px);
+    width: auto;
+    transform: translate(-50%, -100%);
+    pointer-events: none;
+    user-select: none;
+    z-index: 2;
+}
+
+.section01.is-active {
+    display: block;
+}
+
+@media (max-width: 768px) {
+    .intro-ui {
+        bottom: 35px;
+        width: 100%;
+        padding: 0 20px;
+    }
+
+    .enter-btn {
+        min-width: 160px;
+        height: 52px;
+        font-size: 16px;
+    }
+
+    .intro-guide {
+        font-size: 13px;
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    *,
+    *::before,
+    *::after {
+        animation-duration: .01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: .01ms !important;
+    }
+}
