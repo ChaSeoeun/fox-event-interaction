@@ -125,6 +125,9 @@ document.addEventListener('DOMContentLoaded', function () {
 
             document.documentElement.style.overflow = '';
             document.body.style.overflow = '';
+
+            layoutPark();
+            startFreddy();
         });
 
         tl.to(introFlash, {
@@ -135,349 +138,300 @@ document.addEventListener('DOMContentLoaded', function () {
         });
     }
 
+    // 공원 배경(event-park-bg02.png) 원본 크기
+    const PARK_W = 1672;
+    const PARK_H = 941;
+
+    const attractions = [
+        {
+            el: document.querySelector('.class-att'),
+            modal: document.querySelector('.class-modal'),
+            area: { x: 320, y: 110, w: 350, h: 230 }
+        },
+        {
+            el: document.querySelector('.race-att'),
+            modal: document.querySelector('.race-modal'),
+            area: { x: 300, y: 390, w: 360, h: 240 },
+            hit: { left: .2, top: .46, right: .2, bottom: .08 }
+        },
+        {
+            el: document.querySelector('.speech-att'),
+            modal: document.querySelector('.speech-modal'),
+            area: { x: 990, y: 100, w: 350, h: 230 }
+        },
+        {
+            el: document.querySelector('.dub-att'),
+            modal: document.querySelector('.dub-modal'),
+            area: { x: 1000, y: 390, w: 350, h: 250 },
+            hit: { left: .2, top: .46, right: .2, bottom: .08 }
+        }
+    ];
+
+    const parkMap = document.querySelector('.park-map');
+    const parkMapArea = { x: 730, y: 230, w: 230, h: 250 };
+    const calendarBtn = document.querySelector('.calendar-btn');
+
+    // 배경이 cover로 깔리기 때문에 배경과 같은 비율로 맞춰서 배치
+    function placeOnPark(img, area) {
+        const viewW = section01.clientWidth;
+        const viewH = section01.clientHeight;
+        if (!viewW || !img.naturalWidth) return;
+
+        const scale = Math.max(viewW / PARK_W, viewH / PARK_H);
+        const offsetX = (viewW - PARK_W * scale) / 2;
+        const offsetY = (viewH - PARK_H * scale) / 2;
+        const ratio = img.naturalWidth / img.naturalHeight;
+        let w = area.w;
+        let h = area.h;
+
+        if (ratio > w / h) {
+            h = w / ratio;
+        } else {
+            w = h * ratio;
+        }
+
+        img.style.left = offsetX + (area.x + (area.w - w) / 2) * scale + 'px';
+        img.style.top = offsetY + (area.y + (area.h - h) / 2) * scale + 'px';
+        img.style.width = w * scale + 'px';
+    }
+
+    function layoutPark() {
+        attractions.forEach(function (item) {
+            placeOnPark(item.el, item.area);
+        });
+
+        placeOnPark(parkMap, parkMapArea);
+        calendarBtn.style.left = parkMap.offsetLeft + parkMap.offsetWidth / 2 + 'px';
+        calendarBtn.style.top = parkMap.offsetTop + parkMap.offsetHeight * .7 + 'px';
+        calendarBtn.style.width = parkMap.offsetWidth * .7 + 'px';
+    }
+
+    window.addEventListener('resize', layoutPark);
+    attractions.forEach(function (item) {
+        item.el.addEventListener('load', layoutPark);
+    });
+    parkMap.addEventListener('load', layoutPark);
+
     const freddy = document.querySelector('.freddy');
-    const freddyBubble = document.querySelector('.freddy-bubble');
+    const bubble = document.querySelector('.freddy-bubble');
     const sprites = {
         up: ['./images/character-b.png', './images/character-b2.png'],
         down: ['./images/character-f.png', './images/character-f2.png'],
         left: ['./images/character-l.png', './images/character-l2.png'],
         right: ['./images/character-r.png', './images/character-r2.png']
     };
-    const held = { up: false, down: false, left: false, right: false };
     const keyMap = {
         ArrowUp: 'up',
         ArrowDown: 'down',
         ArrowLeft: 'left',
-        ArrowRight: 'right'
+        ArrowRight: 'right',
+        w: 'up',
+        a: 'left',
+        s: 'down',
+        d: 'right'
     };
+
+    function directionOf(key) {
+        return keyMap[key] || keyMap[key.toLowerCase()];
+    }
+    const held = { up: false, down: false, left: false, right: false };
+    const SPEED = 340;
+    const STEP_TIME = .16;
 
     let pos = { x: 0, y: 0 };
     let target = null;
     let facing = 'down';
-    let placed = false;
-    let walkFrame = 0;
-    let walkTime = 0;
-    const speed = 340;
-    const walkStep = 0.16;
+    let frame = 0;
+    let frameTime = 0;
+    let modalOpen = false;
 
-    Object.keys(sprites).forEach(function (direction) {
-        sprites[direction].forEach(function (src) {
-            const image = new Image();
-            image.src = src;
-        });
+    Object.values(sprites).flat().forEach(function (src) {
+        new Image().src = src;
     });
 
-    function showSprite(frame) {
-        const frames = sprites[facing];
-        const nextFrame = frame % frames.length;
-        const marker = facing + ':' + nextFrame;
-        if (freddy.dataset.frame === marker) return;
-        freddy.dataset.frame = marker;
-        freddy.src = frames[nextFrame];
+    function setSprite(dir, nextFrame) {
+        if (dir === facing && nextFrame === frame) return;
+        facing = dir;
+        frame = nextFrame;
+        freddy.src = sprites[dir][nextFrame];
     }
 
-    function setFacing(direction) {
-        if (facing === direction) return;
-        facing = direction;
-        walkFrame = 0;
-        walkTime = 0;
-        showSprite(0);
+    function face(dx, dy) {
+        if (Math.abs(dx) < .5 && Math.abs(dy) < .5) return;
+
+        let dir;
+        if (Math.abs(dx) > Math.abs(dy)) {
+            dir = dx > 0 ? 'right' : 'left';
+        } else {
+            dir = dy > 0 ? 'down' : 'up';
+        }
+
+        if (dir !== facing) setSprite(dir, 0);
     }
 
-    function updateWalk(moving, dt) {
-        if (!moving || sprites[facing].length < 2) {
-            walkFrame = 0;
-            walkTime = 0;
-            showSprite(0);
+    function animateWalk(moving, dt) {
+        if (!moving) {
+            frameTime = 0;
+            setSprite(facing, 0);
             return;
         }
 
-        walkTime += dt;
-        if (walkTime < walkStep) return;
-        walkTime -= walkStep;
-        walkFrame = (walkFrame + 1) % sprites[facing].length;
-        showSprite(walkFrame);
+        frameTime += dt;
+        if (frameTime < STEP_TIME) return;
+        frameTime -= STEP_TIME;
+        setSprite(facing, frame ? 0 : 1);
     }
 
-    function faceBy(dx, dy) {
-        if (Math.abs(dx) < 0.5 && Math.abs(dy) < 0.5) return;
-        if (Math.abs(dx) > Math.abs(dy)) {
-            setFacing(dx > 0 ? 'right' : 'left');
-        } else {
-            setFacing(dy > 0 ? 'down' : 'up');
-        }
+    function releaseKeys() {
+        held.up = held.down = held.left = held.right = false;
     }
 
     function showBubble() {
-        freddyBubble.hidden = false;
-        placeFreddy();
+        bubble.hidden = false;
+        drawFreddy();
     }
 
     function hideBubble() {
-        freddyBubble.hidden = true;
+        bubble.hidden = true;
     }
 
-    function placeFreddy() {
+    function drawFreddy() {
         freddy.style.left = pos.x + 'px';
         freddy.style.top = pos.y + 'px';
 
-        if (!freddyBubble.hidden) {
-            freddyBubble.style.left = pos.x + 'px';
-            freddyBubble.style.top = (pos.y - freddy.offsetHeight) + 'px';
+        if (!bubble.hidden) {
+            bubble.style.left = pos.x + 'px';
+            bubble.style.top = pos.y - freddy.offsetHeight + 'px';
         }
     }
 
-    function clampFreddy() {
-        pos.x = Math.min(section01.clientWidth - 12, Math.max(12, pos.x));
-        pos.y = Math.min(section01.clientHeight - 12, Math.max(12, pos.y));
+    function startFreddy() {
+        pos.x = section01.clientWidth * .5;
+        pos.y = section01.clientHeight * .78;
+        drawFreddy();
+        requestAnimationFrame(tick);
     }
 
-    function ensureFreddy() {
-        if (placed || !section01.clientWidth) return;
-        pos.x = section01.clientWidth * 0.5;
-        pos.y = section01.clientHeight * 0.78;
-        placed = true;
-        placeFreddy();
-    }
-
-    section01.walkTo = function (x, y) {
-        target = { x: x, y: y };
-    };
-
-    let spotOpen = false;
-
-    let parkWidth = 1774;
-    let parkHeight = 998;
-    const parkBackground = new Image();
-
-    parkBackground.addEventListener('load', function () {
-        parkWidth = parkBackground.naturalWidth;
-        parkHeight = parkBackground.naturalHeight;
-    });
-    parkBackground.src = './images/event-park-bg02.png';
-
-    const attractions = [
-        {
-            el: document.querySelector('.class-att'),
-            modal: document.querySelector('.class-modal'),
-            area: { x: 320, y: 110, w: 350, h: 230 },
-            near: false
-        },
-        {
-            el: document.querySelector('.race-att'),
-            modal: document.querySelector('.race-modal'),
-            area: { x: 300, y: 390, w: 360, h: 240 },
-            hit: { left: 0.2, top: 0.46, right: 0.2, bottom: 0.08 },
-            near: false
-        },
-        {
-            el: document.querySelector('.speech-att'),
-            modal: document.querySelector('.speech-modal'),
-            area: { x: 990, y: 100, w: 350, h: 230 },
-            near: false
-        },
-        {
-            el: document.querySelector('.dub-att'),
-            modal: document.querySelector('.dub-modal'),
-            area: { x: 1000, y: 390, w: 350, h: 250 },
-            hit: { left: 0.2, top: 0.46, right: 0.2, bottom: 0.08 },
-            near: false
-        }
-    ];
-
-    function placeAttraction(item) {
-        const img = item.el;
-        const viewW = section01.clientWidth;
-        const viewH = section01.clientHeight;
-        if (!viewW || !viewH || !img.naturalWidth) return;
-
-        const area = item.area;
-        const scale = Math.max(viewW / parkWidth, viewH / parkHeight);
-        const offsetX = (viewW - parkWidth * scale) / 2;
-        const offsetY = (viewH - parkHeight * scale) / 2;
-        const imageRatio = img.naturalWidth / img.naturalHeight;
-        let drawW = area.w;
-        let drawH = area.h;
-
-        if (imageRatio > area.w / area.h) {
-            drawH = area.w / imageRatio;
-        } else {
-            drawW = area.h * imageRatio;
-        }
-
-        img.style.left = (offsetX + (area.x + (area.w - drawW) / 2) * scale) + 'px';
-        img.style.top = (offsetY + (area.y + (area.h - drawH) / 2) * scale) + 'px';
-        img.style.width = (drawW * scale) + 'px';
-    }
-
-    const parkMap = {
-        el: document.querySelector('.park-map'),
-        area: { x: 730, y: 230, w: 230, h: 250 }
-    };
-    const calendarBtn = document.querySelector('.calendar-btn');
-
-    function placeParkMap() {
-        placeAttraction(parkMap);
-
-        const mapWidth = parkMap.el.offsetWidth;
-        if (!mapWidth) return;
-
-        calendarBtn.style.left = (parkMap.el.offsetLeft + mapWidth / 2) + 'px';
-        calendarBtn.style.top = (parkMap.el.offsetTop + parkMap.el.offsetHeight * 0.7) + 'px';
-        calendarBtn.style.width = (mapWidth * 0.7) + 'px';
-    }
-
-    function attractionEntrance(item) {
-        const sectionRect = section01.getBoundingClientRect();
-        const rect = item.el.getBoundingClientRect();
-        const freddyRect = freddy.getBoundingClientRect();
-
+    // 놀이기구 이미지 하단 쪽 입구 위치
+    function entranceOf(item) {
+        const el = item.el;
         return {
-            x: rect.left - sectionRect.left + rect.width / 2,
-            y: rect.bottom - sectionRect.top - rect.height * 0.12,
-            radiusX: Math.max(freddyRect.width * 0.65, rect.width * 0.1),
-            radiusY: Math.max(freddyRect.height * 0.28, rect.height * 0.05)
+            x: el.offsetLeft + el.offsetWidth / 2,
+            y: el.offsetTop + el.offsetHeight * .88
         };
     }
 
-    function isAtAttraction(item) {
-        const sectionRect = section01.getBoundingClientRect();
-        const rect = item.el.getBoundingClientRect();
+    function isInside(item) {
+        const el = item.el;
         const hit = item.hit || { left: 0, top: 0, right: 0, bottom: 0 };
-        const left = rect.left - sectionRect.left + rect.width * hit.left;
-        const top = rect.top - sectionRect.top + rect.height * hit.top;
-        const right = rect.left - sectionRect.left + rect.width * (1 - hit.right);
-        const bottom = rect.top - sectionRect.top + rect.height * (1 - hit.bottom);
+        const left = el.offsetLeft + el.offsetWidth * hit.left;
+        const right = el.offsetLeft + el.offsetWidth * (1 - hit.right);
+        const top = el.offsetTop + el.offsetHeight * hit.top;
+        const bottom = el.offsetTop + el.offsetHeight * (1 - hit.bottom);
 
         return pos.x >= left && pos.x <= right && pos.y >= top && pos.y <= bottom;
     }
 
-    function openSpot(item) {
-        spotOpen = true;
+    function openModal(item) {
+        modalOpen = true;
         target = null;
-        held.up = false;
-        held.down = false;
-        held.left = false;
-        held.right = false;
+        releaseKeys();
         item.modal.hidden = false;
     }
 
-    function closeSpot(item) {
-        spotOpen = false;
+    function closeModal(item) {
+        modalOpen = false;
         item.modal.hidden = true;
     }
 
     attractions.forEach(function (item) {
-        item.modal.querySelector('.guide-close').addEventListener('click', function () {
-            closeSpot(item);
+        item.modal.querySelector('.modal-close').addEventListener('click', function () {
+            closeModal(item);
         });
 
-        item.modal.addEventListener('pointerdown', function (event) {
-            if (event.target === item.modal) closeSpot(item);
+        item.modal.addEventListener('pointerdown', function (e) {
+            if (e.target === item.modal) closeModal(item);
         });
     });
 
-    section01.addEventListener('pointerdown', function (event) {
-        if (!section01.classList.contains('is-active') || spotOpen) return;
-        if (event.target.closest('button, a')) return;
+    section01.addEventListener('pointerdown', function (e) {
+        if (modalOpen || e.target.closest('button, a')) return;
         hideBubble();
 
         const clicked = attractions.find(function (item) {
-            return item.el === event.target;
+            return item.el === e.target;
         });
 
         if (clicked) {
-            const entrance = attractionEntrance(clicked);
-            section01.walkTo(entrance.x, entrance.y);
+            target = entranceOf(clicked);
             return;
         }
 
         const rect = section01.getBoundingClientRect();
-        section01.walkTo(event.clientX - rect.left, event.clientY - rect.top);
+        target = { x: e.clientX - rect.left, y: e.clientY - rect.top };
     });
 
-    window.addEventListener('keydown', function (event) {
-        const direction = keyMap[event.key];
-        if (!direction || !section01.classList.contains('is-active') || spotOpen) return;
-        event.preventDefault();
+    window.addEventListener('keydown', function (e) {
+        const dir = directionOf(e.key);
+        if (!dir || !section01.classList.contains('is-active') || modalOpen) return;
+        e.preventDefault();
         hideBubble();
-        held[direction] = true;
+        held[dir] = true;
         target = null;
     });
 
-    window.addEventListener('keyup', function (event) {
-        const direction = keyMap[event.key];
-        if (!direction) return;
-        held[direction] = false;
+    window.addEventListener('keyup', function (e) {
+        const dir = directionOf(e.key);
+        if (dir) held[dir] = false;
     });
 
-    window.addEventListener('blur', function () {
-        held.up = false;
-        held.down = false;
-        held.left = false;
-        held.right = false;
-    });
+    window.addEventListener('blur', releaseKeys);
 
     let lastTime = performance.now();
 
-    function moveFreddy(now) {
-        const dt = Math.min(0.05, (now - lastTime) / 1000);
+    function tick(now) {
+        const dt = Math.min(.05, (now - lastTime) / 1000);
         lastTime = now;
 
-        if (section01.classList.contains('is-active')) {
-            ensureFreddy();
-            attractions.forEach(placeAttraction);
-            placeParkMap();
+        const prevX = pos.x;
+        const prevY = pos.y;
+        let dx = (held.right ? 1 : 0) - (held.left ? 1 : 0);
+        let dy = (held.down ? 1 : 0) - (held.up ? 1 : 0);
 
-            let dx = 0;
-            let dy = 0;
-            let moving = false;
-            const beforeX = pos.x;
-            const beforeY = pos.y;
-            if (held.left) dx -= 1;
-            if (held.right) dx += 1;
-            if (held.up) dy -= 1;
-            if (held.down) dy += 1;
+        if (dx || dy) {
+            const len = Math.hypot(dx, dy);
+            pos.x += dx / len * SPEED * dt;
+            pos.y += dy / len * SPEED * dt;
+            face(dx, dy);
+        } else if (target) {
+            dx = target.x - pos.x;
+            dy = target.y - pos.y;
+            const dist = Math.hypot(dx, dy);
 
-            if (dx || dy) {
-                const length = Math.hypot(dx, dy);
-                pos.x += (dx / length) * speed * dt;
-                pos.y += (dy / length) * speed * dt;
-                faceBy(dx, dy);
-                moving = true;
-            } else if (target) {
-                dx = target.x - pos.x;
-                dy = target.y - pos.y;
-                const distance = Math.hypot(dx, dy);
-
-                if (distance < 4) {
-                    pos.x = target.x;
-                    pos.y = target.y;
-                    target = null;
-                } else {
-                    const step = Math.min(distance, speed * dt);
-                    pos.x += (dx / distance) * step;
-                    pos.y += (dy / distance) * step;
-                    faceBy(dx, dy);
-                    moving = true;
-                }
+            if (dist < 4) {
+                pos.x = target.x;
+                pos.y = target.y;
+                target = null;
+            } else {
+                const step = Math.min(dist, SPEED * dt);
+                pos.x += dx / dist * step;
+                pos.y += dy / dist * step;
+                face(dx, dy);
             }
-
-            clampFreddy();
-            if (Math.hypot(pos.x - beforeX, pos.y - beforeY) < 0.2) moving = false;
-            placeFreddy();
-            updateWalk(moving, dt);
-
-            attractions.forEach(function (item) {
-                const near = isAtAttraction(item);
-
-                if (near && !item.near && !spotOpen) openSpot(item);
-                item.near = near;
-            });
         }
 
-        requestAnimationFrame(moveFreddy);
-    }
+        pos.x = Math.min(section01.clientWidth - 12, Math.max(12, pos.x));
+        pos.y = Math.min(section01.clientHeight - 12, Math.max(12, pos.y));
 
-    requestAnimationFrame(moveFreddy);
+        drawFreddy();
+        animateWalk(Math.hypot(pos.x - prevX, pos.y - prevY) > .2, dt);
+
+        attractions.forEach(function (item) {
+            const inside = isInside(item);
+            if (inside && !item.inside && !modalOpen) openModal(item);
+            item.inside = inside;
+        });
+
+        requestAnimationFrame(tick);
+    }
 });
