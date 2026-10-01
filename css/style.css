@@ -2,6 +2,8 @@
     margin: 0;
     padding: 0;
     box-sizing: border-box;
+    -webkit-user-drag: none;
+    user-select: none;
 }
 
 html,
@@ -259,12 +261,12 @@ button {
     transform: translate(-50%, -100%);
     pointer-events: none;
     user-select: none;
-    z-index: 2;
+    z-index: 5;
 }
 
 .freddy-bubble {
     position: absolute;
-    z-index: 3;
+    z-index: 6;
     width: max-content;
     max-width: min(260px, 72vw);
     padding: 12px 16px;

@@ -321,6 +321,16 @@ document.addEventListener('DOMContentLoaded', function () {
         };
     }
 
+    function blockedByMap(x, y) {
+        const left = parkMap.offsetLeft;
+        const top = parkMap.offsetTop;
+        const width = parkMap.offsetWidth;
+        const height = parkMap.offsetHeight;
+        if (!width || !height) return false;
+
+        return x > left && x < left + width && y > top && y < top + height;
+    }
+
     function isInside(item) {
         const el = item.el;
         const hit = item.hit || { left: 0, top: 0, right: 0, bottom: 0 };
@@ -368,7 +378,9 @@ document.addEventListener('DOMContentLoaded', function () {
         }
 
         const rect = section01.getBoundingClientRect();
-        target = { x: e.clientX - rect.left, y: e.clientY - rect.top };
+        const point = { x: e.clientX - rect.left, y: e.clientY - rect.top };
+        if (blockedByMap(point.x, point.y)) return;
+        target = point;
     });
 
     window.addEventListener('keydown', function (e) {
@@ -419,6 +431,12 @@ document.addEventListener('DOMContentLoaded', function () {
                 face(dx, dy);
             }
         }
+
+        const nextX = pos.x;
+        const nextY = pos.y;
+        if (blockedByMap(nextX, prevY)) pos.x = prevX;
+        if (blockedByMap(pos.x, nextY)) pos.y = prevY;
+        if (target && pos.x === prevX && pos.y === prevY) target = null;
 
         pos.x = Math.min(section01.clientWidth - 12, Math.max(12, pos.x));
         pos.y = Math.min(section01.clientHeight - 12, Math.max(12, pos.y));
