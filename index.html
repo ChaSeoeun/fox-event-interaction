@@ -26,10 +26,51 @@
             </div>
         </section>
         <section class="section01">
+            <img class="attraction class-att" src="./images/event-cont03.png" alt="CLASS CHALLENGE">
+            <img class="attraction race-att" src="./images/event-cont01.png" alt="READING RACE">
+            <img class="attraction speech-att" src="./images/event-cont02.png" alt="SPEECH CONTEST">
+            <img class="attraction dub-att" src="./images/event-cont04.png" alt="DUBBING FESTIVAL">
+            <img class="park-map" src="./images/event-cont05.png" alt="PARK MAP">
+            <button type="button" class="calendar-btn">
+                <img src="./images/event-cont06.png" alt="연간 이벤트 일정보기">
+            </button>
             <img class="freddy" src="./images/character-f.png" alt="">
+            <p class="freddy-bubble" hidden>안녕 난 프레디야!<br>키보드나 마우스를 이용해서<br> 나를 놀이기구에 데려다 줘!</p>
+            <div class="control-hint" aria-hidden="true">
+                <span class="hint-keys"></span>
+                <span class="hint-mouse"></span>
+            </div>
         </section>
     </div>
     <div class="intro-flash"></div>
+    <div class="guide-modal class-modal" hidden>
+        <div class="guide-modal-card" role="dialog" aria-modal="true" aria-labelledby="class-title">
+            <h2 id="class-title">CLASS CHALLENGE</h2>
+            <p>아직 준비 중인 이벤트예요.</p>
+            <button type="button" class="guide-close">닫기</button>
+        </div>
+    </div>
+    <div class="guide-modal race-modal" hidden>
+        <div class="guide-modal-card" role="dialog" aria-modal="true" aria-labelledby="race-title">
+            <h2 id="race-title">READING RACE</h2>
+            <p>아직 준비 중인 이벤트예요.</p>
+            <button type="button" class="guide-close">닫기</button>
+        </div>
+    </div>
+    <div class="guide-modal dub-modal" hidden>
+        <div class="guide-modal-card" role="dialog" aria-modal="true" aria-labelledby="dub-title">
+            <h2 id="dub-title">DUBBING FESTIVAL</h2>
+            <p>아직 준비 중인 이벤트예요.</p>
+            <button type="button" class="guide-close">닫기</button>
+        </div>
+    </div>
+    <div class="guide-modal speech-modal" hidden>
+        <div class="guide-modal-card" role="dialog" aria-modal="true" aria-labelledby="speech-title">
+            <h2 id="speech-title">SPEECH CONTEST</h2>
+            <p>아직 준비 중인 이벤트예요.</p>
+            <button type="button" class="guide-close">닫기</button>
+        </div>
+    </div>
     <script src="https://cdn.jsdelivr.net/npm/gsap@3.13.0/dist/gsap.min.js"></script>
     <script src="./js/main.js"></script>
 </body>

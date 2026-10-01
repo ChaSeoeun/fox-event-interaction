@@ -43,7 +43,7 @@ button {
     height: 2077px;
     transform: translate(-1742px, -1354px);
     transform-origin: 1742px 1354px;
-    background: #7ec8ff;
+    background: #000;
     will-change: transform;
 }
 
@@ -191,7 +191,62 @@ button {
     height: 100vh;
     height: 100svh;
     overflow: hidden;
-    background: #000 url("../images/event-park-bg.png") center / cover no-repeat;
+    background: #000 url("../images/event-park-bg02.png") center / cover no-repeat;
+}
+
+.attraction {
+    position: absolute;
+    left: 0;
+    top: 0;
+    height: auto;
+    z-index: 1;
+    cursor: pointer;
+    user-select: none;
+}
+
+.park-map {
+    position: absolute;
+    left: 0;
+    top: 0;
+    height: auto;
+    z-index: 1;
+    pointer-events: none;
+    user-select: none;
+}
+
+.calendar-btn {
+    position: absolute;
+    left: 0;
+    top: 0;
+    z-index: 3;
+    padding: 0;
+    border: 0;
+    background: none;
+    cursor: pointer;
+    transform: translateX(-50%);
+}
+
+.calendar-btn img {
+    display: block;
+    width: 100%;
+    height: auto;
+    transform-origin: 50% 0;
+    animation: calendar-swing 2.4s ease-in-out infinite;
+}
+
+.calendar-btn:hover img {
+    animation-duration: 1.2s;
+}
+
+@keyframes calendar-swing {
+    0%,
+    100% {
+        transform: rotate(-4deg);
+    }
+
+    50% {
+        transform: rotate(4deg);
+    }
 }
 
 .freddy {
@@ -210,6 +265,161 @@ button {
     display: block;
 }
 
+.freddy-bubble {
+    position: absolute;
+    z-index: 3;
+    width: max-content;
+    max-width: min(260px, 72vw);
+    margin: 0;
+    padding: 12px 16px;
+    border: 3px solid #075ecf;
+    border-radius: 18px;
+    background: #fff;
+    color: #075ecf;
+    font-size: 14px;
+    font-weight: 800;
+    line-height: 1.45;
+    text-align: center;
+    transform: translate(-50%, calc(-100% - 14px));
+    pointer-events: none;
+    box-shadow: 0 8px 18px rgba(0, 0, 0, .18);
+    animation: bubble-float 1.6s ease-in-out infinite;
+}
+
+@keyframes bubble-float {
+    0%,
+    100% {
+        translate: 0 0;
+    }
+
+    50% {
+        translate: 0 -8px;
+    }
+}
+
+.freddy-bubble::after {
+    content: "";
+    position: absolute;
+    left: 50%;
+    bottom: -11px;
+    width: 16px;
+    height: 16px;
+    background: #fff;
+    border-right: 3px solid #075ecf;
+    border-bottom: 3px solid #075ecf;
+    transform: translateX(-50%) rotate(45deg);
+}
+
+.freddy-bubble[hidden] {
+    display: none;
+}
+
+.control-hint {
+    position: absolute;
+    left: 50%;
+    bottom: max(24px, env(safe-area-inset-bottom));
+    z-index: 4;
+    display: flex;
+    align-items: flex-end;
+    gap: 16px;
+    transform: translateX(-50%);
+    pointer-events: none;
+    filter: drop-shadow(0 6px 8px rgba(0, 0, 0, .28));
+}
+
+.hint-keys,
+.hint-mouse {
+    background: url("../images/key-click-motion.png") no-repeat;
+    background-size: 434.4px 144.8px;
+    image-rendering: pixelated;
+}
+
+.hint-keys {
+    width: 129.2px;
+    height: 84px;
+    animation: hint-keys 1.2s steps(1, end) infinite;
+}
+
+.hint-mouse {
+    width: 70px;
+    height: 102.4px;
+    animation: hint-mouse 1.2s steps(1, end) infinite;
+}
+
+@keyframes hint-keys {
+    0% {
+        background-position: -16px -34.8px;
+    }
+
+    50%,
+    100% {
+        background-position: -152.8px -34.8px;
+    }
+}
+
+@keyframes hint-mouse {
+    0% {
+        background-position: -280.4px -24.8px;
+    }
+
+    50%,
+    100% {
+        background-position: -361.6px -24.8px;
+    }
+}
+
+.guide-modal {
+    position: fixed;
+    inset: 0;
+    z-index: 40;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 24px;
+    background: rgba(0, 0, 0, .45);
+}
+
+.guide-modal[hidden] {
+    display: none;
+}
+
+.guide-modal-card {
+    width: min(420px, 100%);
+    padding: 36px 32px 32px;
+    border: 4px solid #fff;
+    border-radius: 28px;
+    background: #fff;
+    color: #000;
+    text-align: center;
+    box-shadow: 0 16px 40px rgba(0, 0, 0, .28);
+}
+
+.guide-modal-card h2 {
+    margin-bottom: 14px;
+    font-size: clamp(22px, 3vw, 30px);
+    font-weight: 900;
+}
+
+.guide-modal-card p {
+    font-size: 16px;
+    font-weight: 700;
+    line-height: 1.6;
+}
+
+.guide-close {
+    margin-top: 22px;
+    min-width: 140px;
+    height: 52px;
+    padding: 0 28px;
+    border: 3px solid #fff;
+    border-radius: 50px;
+    background: #fff;
+    color: #075ecf;
+    font-size: 16px;
+    font-weight: 800;
+    cursor: pointer;
+}
+
 @media (max-width: 768px) {
     .intro-ui {
         bottom: 35px;
@@ -225,6 +435,12 @@ button {
 
     .intro-guide {
         font-size: 13px;
+    }
+
+    .control-hint {
+        bottom: max(16px, env(safe-area-inset-bottom));
+        transform: translateX(-50%) scale(.82);
+        transform-origin: center bottom;
     }
 }
 
