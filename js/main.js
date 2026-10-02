@@ -364,6 +364,267 @@ document.addEventListener('DOMContentLoaded', function () {
         });
     });
 
+    const calendarMap = document.getElementById('calendar-map');
+    const mapBackdrop = calendarMap.querySelector('.map-backdrop');
+    const mapSheet = calendarMap.querySelector('.map-sheet');
+    const rollL = calendarMap.querySelector('.map-roll-l');
+    const rollR = calendarMap.querySelector('.map-roll-r');
+    const rolls = [rollL, rollR];
+    const scheduleItems = calendarMap.querySelectorAll('.map-months li, .map-group');
+    const mapDismiss = calendarMap.querySelector('.map-dismiss');
+
+    // 롤 이미지에서 실제 종이가 차지하는 폭 비율, 지도 이미지 좌우 여백 비율
+    const ROLL_L_VISIBLE = 197 / 455;
+    const ROLL_R_VISIBLE = 202 / 510;
+    const MAP_EDGE = 63 / 1442;
+
+    const memo = calendarMap.querySelector('.map-memo');
+    const memoPaper = memo.querySelector('.memo-paper');
+    const memoTab = memo.querySelector('.memo-tab');
+    const memoTable = memo.querySelector('.memo-table');
+    const memoBack = memo.querySelector('.memo-back');
+    const memoContent = [memoTable, memoBack];
+    const MEMO_SMALL = .17;
+    const MEMO_UPRIGHT = -5;
+
+    const unfold = { p: 0, edge: 0 };
+    let mapState = 'closed';
+    let mapTween = null;
+    let memoBig = false;
+    let memoTween = null;
+    let memoFlutter = null;
+
+    // 작은 메모지는 지도 오른쪽 위 모서리에 걸쳐 붙는다
+    function memoSmallPos() {
+        const stage = memo.parentElement;
+        return {
+            x: stage.offsetWidth * .42,
+            y: -stage.offsetHeight * .42,
+            scale: MEMO_SMALL,
+            rotation: 0
+        };
+    }
+
+    function startFlutter() {
+        stopFlutter();
+        memoFlutter = gsap.fromTo(memoPaper, {
+            rotation: MEMO_UPRIGHT - 3,
+            skewX: 1.5
+        }, {
+            rotation: MEMO_UPRIGHT + 3,
+            skewX: -1.5,
+            duration: .8,
+            repeat: -1,
+            yoyo: true,
+            ease: 'sine.inOut'
+        });
+    }
+
+    function stopFlutter() {
+        if (memoFlutter) memoFlutter.kill();
+        memoFlutter = null;
+    }
+
+    function resetMemo() {
+        stopFlutter();
+        if (memoTween) memoTween.kill();
+        memoBig = false;
+        gsap.set(memo, Object.assign({ xPercent: -50, yPercent: -50, autoAlpha: 0 }, memoSmallPos()));
+        gsap.set(memoPaper, { rotation: MEMO_UPRIGHT, skewX: 0, transformOrigin: '50% 50%' });
+        gsap.set(memoTab, { autoAlpha: 1 });
+        gsap.set(memoContent, { autoAlpha: 0 });
+    }
+
+    function showTable() {
+        if (memoBig || mapState !== 'open') return;
+        memoBig = true;
+        stopFlutter();
+        if (memoTween) memoTween.kill();
+
+        memoTween = gsap.timeline();
+        memoTween.to(memoPaper, { rotation: MEMO_UPRIGHT, skewX: 0, duration: .2 });
+        memoTween.to(memoTab, { autoAlpha: 0, duration: .15 }, 0);
+        memoTween.to(memo, {
+            x: 0,
+            y: 0,
+            scale: 1,
+            duration: .75,
+            ease: 'power3.inOut'
+        }, .1);
+        memoTween.fromTo(memoContent, { autoAlpha: 0, y: 10 }, { autoAlpha: 1, y: 0, duration: .3 }, '-=.15');
+    }
+
+    function showCalendar() {
+        if (!memoBig) return;
+        memoBig = false;
+        if (memoTween) memoTween.kill();
+
+        memoTween = gsap.timeline({ onComplete: startFlutter });
+        memoTween.to(memoContent, { autoAlpha: 0, duration: .2 });
+        memoTween.to(memo, Object.assign({ duration: .6, ease: 'power3.inOut' }, memoSmallPos()));
+        memoTween.to(memoTab, { autoAlpha: 1, duration: .2 }, '-=.15');
+    }
+
+    function renderUnfold() {
+        const w = mapSheet.offsetWidth;
+        const visL = rollL.offsetWidth * ROLL_L_VISIBLE;
+        const visR = rollR.offsetWidth * ROLL_R_VISIBLE;
+        const travelL = w / 2 - w * MAP_EDGE - visL;
+        const travelR = w / 2 - w * MAP_EDGE - visR;
+        const moveL = travelL * unfold.p;
+        const moveR = travelR * unfold.p;
+
+        gsap.set(rollL, { x: -moveL });
+        gsap.set(rollR, { x: moveR });
+
+        // 롤 가운데를 경계로 지도를 드러내고, 마지막에 가장자리까지 연다
+        const halfL = Math.min(w / 2, unfold.p ? moveL + visL / 2 : 0);
+        const halfR = Math.min(w / 2, unfold.p ? moveR + visR / 2 : 0);
+        const insetL = (w / 2 - halfL) * (1 - unfold.edge);
+        const insetR = (w / 2 - halfR) * (1 - unfold.edge);
+        mapSheet.style.clipPath = 'inset(0 ' + insetR + 'px 0 ' + insetL + 'px)';
+    }
+
+    function openCalendarMap() {
+        if (mapState !== 'closed') return;
+        mapState = 'opening';
+        modalOpen = true;
+        target = null;
+        releaseKeys();
+        hideBubble();
+        calendarBtn.setAttribute('aria-expanded', 'true');
+
+        unfold.p = 0;
+        unfold.edge = 0;
+        calendarMap.hidden = false;
+        gsap.set(mapBackdrop, { opacity: 0 });
+        gsap.set(mapDismiss, { autoAlpha: 0 });
+        gsap.set(scheduleItems, { autoAlpha: 0, y: 8, scale: .92 });
+        gsap.set(rolls, { autoAlpha: 0, y: 40, scale: .7, transformOrigin: '50% 50%' });
+        renderUnfold();
+        resetMemo();
+
+        mapTween = gsap.timeline({
+            onComplete: function () {
+                mapState = 'open';
+                mapDismiss.focus();
+            }
+        });
+
+        mapTween.to(mapBackdrop, { opacity: 1, duration: .3, ease: 'power1.out' });
+
+        mapTween.to(rolls, {
+            autoAlpha: 1,
+            y: 0,
+            scale: 1,
+            duration: .55,
+            ease: 'back.out(1.6)'
+        }, .05);
+
+        mapTween.to(unfold, {
+            p: 1,
+            duration: 1.1,
+            ease: 'power2.inOut',
+            onUpdate: renderUnfold
+        }, .8);
+
+        mapTween.to(unfold, {
+            edge: 1,
+            duration: .3,
+            ease: 'power1.out',
+            onUpdate: renderUnfold
+        }, 1.85);
+
+        mapTween.to(rolls, {
+            autoAlpha: 0,
+            duration: .3,
+            ease: 'power1.out'
+        }, 1.85);
+
+        mapTween.to(scheduleItems, {
+            autoAlpha: 1,
+            y: 0,
+            scale: 1,
+            duration: .35,
+            ease: 'back.out(2)',
+            stagger: .08
+        }, 2.1);
+
+        mapTween.to(mapDismiss, { autoAlpha: 1, duration: .25 }, '-=.2');
+
+        const small = memoSmallPos();
+        mapTween.fromTo(memo, {
+            autoAlpha: 0,
+            y: small.y - 40,
+            scale: MEMO_SMALL * 1.5,
+            rotation: -20
+        }, {
+            autoAlpha: 1,
+            y: small.y,
+            scale: MEMO_SMALL,
+            rotation: 0,
+            duration: .5,
+            ease: 'back.out(1.8)',
+            onComplete: startFlutter
+        });
+    }
+
+    function closeCalendarMap() {
+        if (mapState === 'closed' || mapState === 'closing') return;
+        mapState = 'closing';
+        if (mapTween) mapTween.kill();
+
+        mapTween = gsap.timeline({
+            onComplete: function () {
+                calendarMap.hidden = true;
+                mapState = 'closed';
+                modalOpen = false;
+                calendarBtn.setAttribute('aria-expanded', 'false');
+                calendarBtn.focus();
+            }
+        });
+
+        stopFlutter();
+        if (memoTween) memoTween.kill();
+        mapTween.to([mapDismiss, scheduleItems, memo], { autoAlpha: 0, duration: .15 });
+        mapTween.to(rolls, { autoAlpha: 1, y: 0, scale: 1, duration: .15 }, 0);
+        mapTween.to(unfold, { edge: 0, duration: .15, onUpdate: renderUnfold }, 0);
+
+        mapTween.to(unfold, {
+            p: 0,
+            duration: .55,
+            ease: 'power2.inOut',
+            onUpdate: renderUnfold
+        }, .12);
+
+        mapTween.to(rolls, {
+            autoAlpha: 0,
+            y: 30,
+            scale: .7,
+            duration: .25,
+            ease: 'power2.in'
+        }, .65);
+
+        mapTween.to(mapBackdrop, { opacity: 0, duration: .25 }, .7);
+    }
+
+    calendarBtn.addEventListener('click', openCalendarMap);
+    mapBackdrop.addEventListener('click', closeCalendarMap);
+    mapDismiss.addEventListener('click', closeCalendarMap);
+    window.addEventListener('keydown', function (e) {
+        if (e.key === 'Escape') closeCalendarMap();
+    });
+    memoTab.addEventListener('click', showTable);
+    memo.addEventListener('click', function (e) {
+        if (e.target.closest('.memo-back')) showCalendar();
+    });
+
+    window.addEventListener('resize', function () {
+        if (mapState === 'closed') return;
+        renderUnfold();
+        if (!memoBig) gsap.set(memo, memoSmallPos());
+    });
+
     section01.addEventListener('pointerdown', function (e) {
         if (modalOpen || e.target.closest('button, a')) return;
         hideBubble();

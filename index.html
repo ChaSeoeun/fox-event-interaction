@@ -31,7 +31,7 @@
             <img class="attraction speech-att" src="./images/event-cont02.png" alt="SPEECH CONTEST">
             <img class="attraction dub-att" src="./images/event-cont04.png" alt="DUBBING FESTIVAL">
             <img class="park-map" src="./images/event-cont05.png" alt="PARK MAP">
-            <button type="button" class="calendar-btn">
+            <button type="button" class="calendar-btn" aria-expanded="false" aria-controls="calendar-map">
                 <img src="./images/event-cont06.png" alt="연간 이벤트 일정보기">
             </button>
             <img class="freddy" src="./images/character-f.png" alt="">
@@ -70,6 +70,141 @@
             <h2>DUBBING FESTIVAL</h2>
             <p>아직 준비 중인 이벤트예요.</p>
             <button type="button" class="modal-close">닫기</button>
+        </div>
+    </div>
+    <div class="map-overlay" id="calendar-map" hidden role="dialog" aria-modal="true" aria-label="연간 이벤트 일정">
+        <div class="map-backdrop"></div>
+        <div class="map-frame">
+            <div class="map-stage">
+                <div class="map-sheet">
+                    <img class="map-open" src="./images/event-map-open.png" alt="연간 이벤트 일정">
+                    <ol class="map-schedule">
+                        <li class="map-row">
+                            <ul class="map-months">
+                                <li>겨울 리딩레이스</li>
+                                <li></li>
+                                <li></li>
+                            </ul>
+                            <p class="map-group">1분기 CLASS 챌린지 </p>
+                        </li>
+                        <li class="map-row">
+                            <ul class="map-months">
+                                <li></li>
+                                <li></li>
+                                <li>더빙 페스티벌</li>
+                            </ul>
+                            <p class="map-group">2분기 CLASS 챌린지 </p>
+                        </li>
+                        <li class="map-row">
+                            <ul class="map-months">
+                                <li>여름 리딩레이스</li>
+                                <li>여름 리딩레이스</li>
+                                <li></li>
+                            </ul>
+                            <p class="map-group">3분기 CLASS 챌린지 </p>
+                        </li>
+                        <li class="map-row">
+                            <ul class="map-months">
+                                <li>스피치 콘테스트</li>
+                                <li></li>
+                                <li>겨울 리딩레이스</li>
+                            </ul>
+                            <p class="map-group">4분기 CLASS 챌린지 </p>
+                        </li>
+                    </ol>
+                </div>
+                <img class="map-roll map-roll-l" src="./images/event-map-roll-l.png" alt="">
+                <img class="map-roll map-roll-r" src="./images/event-map-roll-r.png" alt="">
+                <div class="map-memo">
+                    <div class="memo-paper">
+                        <img src="./images/map-tab.png" alt="">
+                        <button type="button" class="memo-tab">표로 보기</button>
+                        <button type="button" class="memo-back">달력으로 보기</button>
+                        <div class="memo-table">
+                            <table>
+                                <caption>CLASS 챌린지</caption>
+                                <thead>
+                                    <tr>
+                                        <th>활동 시기</th>
+                                        <th>신청일</th>
+                                        <th>참가 기간</th>
+                                        <th>발표일</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td>1분기</td>
+                                        <td>1,2,3기<br>CLASS 신청일</td>
+                                        <td>1월 - 3월</td>
+                                        <td>4.4(금)</td>
+                                    </tr>
+                                    <tr>
+                                        <td>2분기</td>
+                                        <td>4,5,6기<br>CLASS 신청일</td>
+                                        <td>4월 - 6월</td>
+                                        <td>7.3(목)</td>
+                                    </tr>
+                                    <tr>
+                                        <td>3분기</td>
+                                        <td>7,8,9기<br>CLASS 신청일</td>
+                                        <td>7월 - 9월</td>
+                                        <td>9.30(화)</td>
+                                    </tr>
+                                    <tr>
+                                        <td>4분기</td>
+                                        <td>10,11,12기<br>CLASS 신청일</td>
+                                        <td>10월 - 12월</td>
+                                        <td>2026.1.5(월)</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                            <table>
+                                <caption>리딩 레이스</caption>
+                                <thead>
+                                    <tr>
+                                        <th>활동 시기</th>
+                                        <th>신청일</th>
+                                        <th>참가 기간</th>
+                                        <th>발표일</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td>여름</td>
+                                        <td rowspan="2">이벤트 참가 기간<br>중에 신청서 작성</td>
+                                        <td>7.18(금) - 8.18(월)</td>
+                                        <td>8.19(화)</td>
+                                    </tr>
+                                    <tr>
+                                        <td>겨울</td>
+                                        <td>12.19(금) - 1.19(월)</td>
+                                        <td>1.20(화)</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                            <table>
+                                <caption>스피치 콘테스트</caption>
+                                <thead>
+                                    <tr>
+                                        <th>신청일</th>
+                                        <th>참가 기간</th>
+                                        <th>발표일</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td>이벤트 참가 기간 중에 신청서 작성</td>
+                                        <td>10.1(수) - 10.31(금)</td>
+                                        <td>12.19(금)</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                        <img class="memo-curl" src="./images/map-tab.png" alt="">
+                    </div>
+                </div>
+            </div>
+            <button type="button" class="map-dismiss">닫기</button>
         </div>
     </div>
     <script src="https://cdn.jsdelivr.net/npm/gsap@3.13.0/dist/gsap.min.js"></script>
