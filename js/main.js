@@ -346,6 +346,8 @@ document.addEventListener('DOMContentLoaded', function () {
         modalOpen = true;
         target = null;
         releaseKeys();
+        const ticket = item.modal.querySelector('.ticket');
+        if (ticket) resetTicket(ticketState(ticket));
         item.modal.hidden = false;
     }
 
@@ -362,6 +364,92 @@ document.addEventListener('DOMContentLoaded', function () {
         item.modal.addEventListener('pointerdown', function (e) {
             if (e.target === item.modal) closeModal(item);
         });
+    });
+
+    const TEAR_ANGLE = 32;
+    const ticketStates = new Map();
+
+    function ticketState(ticket) {
+        let state = ticketStates.get(ticket);
+        if (state) return state;
+        state = {
+            main: ticket.querySelector('.ticket-main'),
+            stub: ticket.querySelector('.ticket-stub'),
+            link: ticket.parentElement.querySelector('.ticket-link'),
+            tear: 0,
+            done: false,
+            drag: null,
+            linkCall: null
+        };
+        ticketStates.set(ticket, state);
+        return state;
+    }
+
+    // 찢어진 정도(0~1)는 드래그 방향대로 오가고, 손을 떼면 그 자리에 남는다
+    function renderTear(state) {
+        gsap.set(state.main, {
+            rotation: TEAR_ANGLE * state.tear,
+            x: state.main.offsetWidth * .35 * state.tear,
+            y: 8 * state.tear
+        });
+        gsap.set(state.stub, { rotation: -1.5 * state.tear });
+    }
+
+    function resetTicket(state) {
+        gsap.killTweensOf([state.stub, state.main]);
+        if (state.linkCall) state.linkCall.kill();
+        state.tear = 0;
+        state.done = false;
+        state.drag = null;
+        gsap.set(state.main, { autoAlpha: 1 });
+        renderTear(state);
+    }
+
+    // 사용자 클릭 직후여야 새 탭이 팝업 차단되지 않으므로, 떨어지는 모션 도중에 연다
+    function completeTear(state) {
+        state.done = true;
+        gsap.to(state.main, {
+            x: '+=180',
+            y: '+=420',
+            rotation: TEAR_ANGLE + 40,
+            autoAlpha: 0,
+            duration: .8,
+            ease: 'power2.in'
+        });
+        state.linkCall = gsap.delayedCall(.4, function () {
+            state.link.click();
+        });
+        gsap.to(state.stub, { rotation: 0, duration: .5, ease: 'back.out(2)' });
+    }
+
+    document.querySelectorAll('.ticket').forEach(function (ticket) {
+        const state = ticketState(ticket);
+
+        state.main.addEventListener('pointerdown', function (e) {
+            if (state.done) return;
+            e.preventDefault();
+            state.main.setPointerCapture(e.pointerId);
+            state.main.classList.add('is-dragging');
+            state.drag = { id: e.pointerId, x: e.clientX, y: e.clientY, start: state.tear };
+        });
+
+        state.main.addEventListener('pointermove', function (e) {
+            if (!state.drag || e.pointerId !== state.drag.id) return;
+            const pull = (e.clientX - state.drag.x) + (e.clientY - state.drag.y) * .6;
+            const next = Math.max(0, Math.min(1, state.drag.start + pull / (state.main.offsetWidth * 1.4)));
+            state.tear = next > .98 ? 1 : next;
+            renderTear(state);
+        });
+
+        function endTearDrag(e) {
+            if (!state.drag || e.pointerId !== state.drag.id) return;
+            state.drag = null;
+            state.main.classList.remove('is-dragging');
+            if (state.tear >= 1 && !state.done) completeTear(state);
+        }
+
+        state.main.addEventListener('pointerup', endTearDrag);
+        state.main.addEventListener('pointercancel', endTearDrag);
     });
 
     const calendarMap = document.getElementById('calendar-map');
@@ -499,7 +587,7 @@ document.addEventListener('DOMContentLoaded', function () {
         calendarMap.hidden = false;
         gsap.set(mapBackdrop, { opacity: 0 });
         gsap.set(mapDismiss, { autoAlpha: 0 });
-        gsap.set(scheduleItems, { autoAlpha: 0, y: 8, scale: .92 });
+        gsap.set(scheduleItems, { autoAlpha: 1 });
         gsap.set(rolls, { autoAlpha: 0, y: 40, scale: .7, transformOrigin: '50% 50%' });
         renderUnfold();
         resetMemo();
@@ -541,16 +629,7 @@ document.addEventListener('DOMContentLoaded', function () {
             ease: 'power1.out'
         }, 1.85);
 
-        mapTween.to(scheduleItems, {
-            autoAlpha: 1,
-            y: 0,
-            scale: 1,
-            duration: .35,
-            ease: 'back.out(2)',
-            stagger: .08
-        }, 2.1);
-
-        mapTween.to(mapDismiss, { autoAlpha: 1, duration: .25 }, '-=.2');
+        mapTween.to(mapDismiss, { autoAlpha: 1, duration: .25 }, 2.1);
 
         const small = memoSmallPos();
         mapTween.fromTo(memo, {
