@@ -423,6 +423,20 @@ button {
     line-height: 1.6;
 }
 
+.modal:has(> .upcoming-event) {
+    flex-direction: column;
+}
+
+.upcoming-event {
+    width: min(520px, 100%);
+}
+
+.upcoming-event img {
+    display: block;
+    width: 100%;
+    height: auto;
+}
+
 .ticket-pop {
     display: flex;
     flex-direction: column;
