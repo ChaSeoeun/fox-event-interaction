@@ -26,20 +26,29 @@
             </div>
         </section>
         <section class="section01">
-            <img class="attraction class-att" src="./images/event-cont03.png" alt="CLASS CHALLENGE">
-            <img class="attraction race-att" src="./images/event-cont01.png" alt="READING RACE">
-            <img class="attraction speech-att" src="./images/event-cont02.png" alt="SPEECH CONTEST">
-            <img class="attraction dub-att" src="./images/event-cont04.png" alt="DUBBING FESTIVAL">
-            <img class="park-map" src="./images/event-cont05.png" alt="PARK MAP">
-            <button type="button" class="calendar-btn" aria-expanded="false" aria-controls="calendar-map">
-                <img src="./images/event-cont06.png" alt="연간 이벤트 일정보기">
-            </button>
-            <img class="freddy" src="./images/character-f.png" alt="">
-            <p class="freddy-bubble" hidden>안녕 난 프레디야!<br>키보드나 마우스를 이용해서<br> 나를 놀이기구에 데려다 줘!</p>
+            <div class="park-world">
+                <img class="attraction class-att" src="./images/event-cont03.png" alt="CLASS CHALLENGE">
+                <img class="attraction race-att" src="./images/event-cont01.png" alt="READING RACE">
+                <img class="attraction speech-att" src="./images/event-cont02.png" alt="SPEECH CONTEST">
+                <img class="attraction dub-att" src="./images/event-cont04.png" alt="DUBBING FESTIVAL">
+                <img class="park-map" src="./images/event-cont05.png" alt="PARK MAP">
+                <button type="button" class="calendar-btn" aria-expanded="false" aria-controls="calendar-map">
+                    <img src="./images/event-cont06.png" alt="연간 이벤트 일정보기">
+                </button>
+                <img class="freddy" src="./images/character-f.png" alt="">
+                <p class="freddy-bubble" hidden>안녕 난 프레디야!<br>키보드나 마우스를 이용해서<br> 나를 놀이기구에 데려다 줘!</p>
+                <button type="button" class="mo-att" data-att="class"><span>클래스 챌린지</span></button>
+                <button type="button" class="mo-att" data-att="speech"><span>스피치 콘테스트</span></button>
+                <button type="button" class="mo-att" data-att="race"><span>리딩 레이스</span></button>
+                <button type="button" class="mo-att" data-att="dub"><span>더빙 페스티벌</span></button>
+            </div>
             <div class="control-hint">
                 <span class="hint-wasd"></span>
                 <span class="hint-arrows"></span>
                 <span class="hint-mouse"></span>
+            </div>
+            <div class="joystick" aria-hidden="true">
+                <span class="joystick-knob"></span>
             </div>
         </section>
     </div>
@@ -48,7 +57,10 @@
         <div class="ticket-pop">
             <div class="ticket">
                 <div class="ticket-stub">
-                    <img src="./images/event-pop-cont02.png" alt="" draggable="false">
+                    <picture>
+                        <source media="(max-width: 1025px)" srcset="./images/mo-event-pop-cont02.png">
+                        <img src="./images/event-pop-cont02.png" alt="" draggable="false">
+                    </picture>
                     <div class="ticket-copy">
                         <h3>CLASS 챌린지</h3>
                         <p>3개월간 꾸준히 클래스에 참여하고 <br>상장과 선물을 받으세요!</p>
@@ -56,8 +68,11 @@
                     <p class="ticket-when">진행 시기: 1-3월, 4-6월, 7-9월, 10-12월</p>
                 </div>
                 <div class="ticket-main">
-                    <img src="./images/event-pop-cont02-1.png" alt="READING RACE 티켓" draggable="false">
-                    <p class="ticket-guide">티켓 오른쪽 조각을 잡고 아래로 끝까지 찢어 보세요!</p>
+                    <picture>
+                        <source media="(max-width: 1025px)" srcset="./images/mo-event-pop-cont02-1.png">
+                        <img src="./images/event-pop-cont02-1.png" alt="CLASS 챌린지 티켓" draggable="false">
+                    </picture>
+                    <p class="ticket-guide"><span class="guide-pc">티켓 오른쪽 조각을 잡고 아래로 끝까지 찢어 보세요!</span><span class="guide-mo">아래 조각을 잡고 끝까지 내려 찢어 보세요!</span></p>
                 </div>
             </div>
             <a class="ticket-link" href="https://www.littlefox.co.kr/" target="_blank" rel="noopener" hidden>CLASS 챌린지 바로가기</a>
@@ -69,7 +84,10 @@
         <div class="ticket-pop">
             <div class="ticket">
                 <div class="ticket-stub">
-                    <img src="./images/event-pop-cont01.png" alt="" draggable="false">
+                    <picture>
+                        <source media="(max-width: 1025px)" srcset="./images/mo-event-pop-cont01.png">
+                        <img src="./images/event-pop-cont01.png" alt="" draggable="false">
+                    </picture>
                     <div class="ticket-copy">
                         <h3>리딩레이스</h3>
                         <p>방학동안 영어 동화를 많이 읽고 <br>상장과 선물을 받는 레이스에 참여하세요!</p>
@@ -77,8 +95,11 @@
                     <p class="ticket-when">진행시기: 7-8월, 12-1월</p>
                 </div>
                 <div class="ticket-main">
-                    <img src="./images/event-pop-cont01-1.png" alt="READING RACE 티켓" draggable="false">
-                    <p class="ticket-guide">티켓 오른쪽 조각을 잡고 아래로 끝까지 찢어 보세요!</p>
+                    <picture>
+                        <source media="(max-width: 1025px)" srcset="./images/mo-event-pop-cont01-1.png">
+                        <img src="./images/event-pop-cont01-1.png" alt="리딩레이스 티켓" draggable="false">
+                    </picture>
+                    <p class="ticket-guide"><span class="guide-pc">티켓 오른쪽 조각을 잡고 아래로 끝까지 찢어 보세요!</span><span class="guide-mo">아래 조각을 잡고 끝까지 내려 찢어 보세요!</span></p>
                 </div>
             </div>
             <a class="ticket-link" href="https://www.littlefox.co.kr/" target="_blank" rel="noopener" hidden>READING RACE 바로가기</a>
@@ -90,7 +111,10 @@
         <div class="ticket-pop">
             <div class="ticket">
                 <div class="ticket-stub">
-                    <img src="./images/event-pop-cont04.png" alt="" draggable="false">
+                    <picture>
+                        <source media="(max-width: 1025px)" srcset="./images/mo-event-pop-cont04.png">
+                        <img src="./images/event-pop-cont04.png" alt="" draggable="false">
+                    </picture>
                     <div class="ticket-copy">
                         <h3>스피치 콘테스트</h3>
                         <p>자신 있는 주제로 <br>말하기 실력을 뽐내고 <br>상장과 선물을 받으세요!</p>
@@ -98,8 +122,11 @@
                     <p class="ticket-when">진행시기: 10월</p>
                 </div>
                 <div class="ticket-main">
-                    <img src="./images/event-pop-cont04-1.png" alt="READING RACE 티켓" draggable="false">
-                    <p class="ticket-guide">티켓 오른쪽 조각을 잡고 아래로 끝까지 찢어 보세요!</p>
+                    <picture>
+                        <source media="(max-width: 1025px)" srcset="./images/mo-event-pop-cont04-1.png">
+                        <img src="./images/event-pop-cont04-1.png" alt="스피치 콘테스트 티켓" draggable="false">
+                    </picture>
+                    <p class="ticket-guide"><span class="guide-pc">티켓 오른쪽 조각을 잡고 아래로 끝까지 찢어 보세요!</span><span class="guide-mo">아래 조각을 잡고 끝까지 내려 찢어 보세요!</span></p>
                 </div>
             </div>
             <a class="ticket-link" href="https://www.littlefox.co.kr/" target="_blank" rel="noopener" hidden>스피치 콘테스트 바로가기</a>
@@ -108,13 +135,16 @@
     </div>
     <div class="modal dub-modal" hidden>
         <div class="upcoming-event">
-            <img src="./images/upcoming-event.png" alt="재미있는 이벤트를 준비하고 있어요">
+            <img src="./images/upcoming-event.png" alt="이벤트 준비중">
         </div>
         <button type="button" class="modal-close">닫기</button>
         <!-- <div class="ticket-pop">
             <div class="ticket">
                 <div class="ticket-stub">
-                    <img src="./images/event-pop-cont03.png" alt="" draggable="false">
+                    <picture>
+                        <source media="(max-width: 1025px)" srcset="./images/mo-event-pop-cont03.png">
+                        <img src="./images/event-pop-cont03.png" alt="" draggable="false">
+                    </picture>
                     <div class="ticket-copy">
                         <h3>더빙 페스티벌</h3>
                         <p></p>
@@ -122,8 +152,11 @@
                     <p class="ticket-when">진행시기: 6월</p>
                 </div>
                 <div class="ticket-main">
-                    <img src="./images/event-pop-cont03-1.png" alt="READING RACE 티켓" draggable="false">
-                    <p class="ticket-guide">티켓 오른쪽 조각을 잡고 아래로 끝까지 찢어 보세요!</p>
+                    <picture>
+                        <source media="(max-width: 1025px)" srcset="./images/mo-event-pop-cont03-1.png">
+                        <img src="./images/event-pop-cont03-1.png" alt="더빙 페스티벌 티켓" draggable="false">
+                    </picture>
+                    <p class="ticket-guide"><span class="guide-pc">티켓 오른쪽 조각을 잡고 아래로 끝까지 찢어 보세요!</span><span class="guide-mo">아래 조각을 잡고 끝까지 내려 찢어 보세요!</span></p>
                 </div>
             </div>
             <a class="ticket-link" href="https://www.littlefox.co.kr/" target="_blank" rel="noopener" hidden>더빙 페스티벌 바로가기</a>

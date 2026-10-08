@@ -7,6 +7,8 @@ document.addEventListener('DOMContentLoaded', function () {
     const rightDoor = document.querySelector('.gate-door-right');
     const introFlash = document.querySelector('.intro-flash');
     const section01 = document.querySelector('.section01');
+    const parkWorld = document.querySelector('.park-world');
+    const mobileQuery = window.matchMedia('(max-width: 1025px)');
 
     const DESIGN_WIDTH = 3438;
     const DESIGN_HEIGHT = 2077;
@@ -138,7 +140,7 @@ document.addEventListener('DOMContentLoaded', function () {
         });
     }
 
-    // 공원 배경(event-park-bg02.png) 원본 크기
+    // 배경 원본 크기
     const PARK_W = 1672;
     const PARK_H = 941;
 
@@ -146,32 +148,46 @@ document.addEventListener('DOMContentLoaded', function () {
         {
             el: document.querySelector('.class-att'),
             modal: document.querySelector('.class-modal'),
-            area: { x: 320, y: 110, w: 350, h: 230 }
+            area: { x: 320, y: 110, w: 350, h: 230 },
+            areaMo: { x: 80, y: 500, w: 450, h: 300 }
         },
         {
             el: document.querySelector('.race-att'),
             modal: document.querySelector('.race-modal'),
             area: { x: 300, y: 390, w: 360, h: 240 },
+            areaMo: { x: 102, y: 1280, w: 450, h: 300 },
             hit: { left: .2, top: .46, right: .2, bottom: .08 }
         },
         {
             el: document.querySelector('.speech-att'),
             modal: document.querySelector('.speech-modal'),
-            area: { x: 990, y: 100, w: 350, h: 230 }
+            area: { x: 990, y: 100, w: 350, h: 230 },
+            areaMo: { x: 252, y: 930, w: 450, h: 300 }
         },
         {
             el: document.querySelector('.dub-att'),
             modal: document.querySelector('.dub-modal'),
             area: { x: 1000, y: 390, w: 350, h: 250 },
+            areaMo: { x: 200, y: 1670, w: 450, h: 300 },
             hit: { left: .2, top: .46, right: .2, bottom: .08 }
         }
     ];
 
     const parkMap = document.querySelector('.park-map');
     const parkMapArea = { x: 730, y: 230, w: 230, h: 250 };
+    const parkMapAreaMo = { x: 142, y: 110, w: 440, h: 209 };
+    const MO_PARK_W = 724;
     const calendarBtn = document.querySelector('.calendar-btn');
 
-    // 배경이 cover로 깔리기 때문에 배경과 같은 비율로 맞춰서 배치
+    function syncMapImage() {
+        const file = mobileQuery.matches ? 'mo-event-cont05.png' : 'event-cont05.png';
+        if (parkMap.src.indexOf(file) !== -1) return;
+        parkMap.src = './images/' + file;
+    }
+
+    syncMapImage();
+
+    // 배경 cover랑 맞춰서 배치
     function placeOnPark(img, area) {
         const viewW = section01.clientWidth;
         const viewH = section01.clientHeight;
@@ -195,15 +211,58 @@ document.addEventListener('DOMContentLoaded', function () {
         img.style.width = w * scale + 'px';
     }
 
+    // 모바일 배경은 화면 너비에 맞춘 원본 좌표
+    function placeInWorld(img, area) {
+        const worldW = parkWorld.clientWidth;
+        if (!worldW || !img.naturalWidth) return;
+
+        const scale = worldW / MO_PARK_W;
+        const ratio = img.naturalWidth / img.naturalHeight;
+        let w = area.w;
+        let h = area.h;
+
+        if (ratio > w / h) {
+            h = w / ratio;
+        } else {
+            w = h * ratio;
+        }
+
+        img.style.left = (area.x + (area.w - w) / 2) * scale + 'px';
+        img.style.top = (area.y + (area.h - h) / 2) * scale + 'px';
+        img.style.width = w * scale + 'px';
+    }
+
     function layoutPark() {
+        syncMapImage();
+        if (!parkMap.complete) return;
+
         attractions.forEach(function (item) {
-            placeOnPark(item.el, item.area);
+            if (mobileQuery.matches) placeInWorld(item.el, item.areaMo);
+            else placeOnPark(item.el, item.area);
         });
 
-        placeOnPark(parkMap, parkMapArea);
-        calendarBtn.style.left = parkMap.offsetLeft + parkMap.offsetWidth / 2 + 'px';
-        calendarBtn.style.top = parkMap.offsetTop + parkMap.offsetHeight * .7 + 'px';
-        calendarBtn.style.width = parkMap.offsetWidth * .7 + 'px';
+        if (mobileQuery.matches) {
+            placeInWorld(parkMap, parkMapAreaMo);
+            calendarBtn.style.width = parkMap.offsetWidth * .5 + 'px';
+            calendarBtn.style.left = parkMap.offsetLeft + parkMap.offsetWidth / 2 + 'px';
+            calendarBtn.style.top = parkMap.offsetTop + parkMap.offsetHeight * .68 + 'px';
+            document.querySelectorAll('.mo-att').forEach(function (box) {
+                const item = attractions.find(function (att) {
+                    return att.el.classList.contains(box.dataset.att + '-att');
+                });
+                if (!item || !item.el.offsetWidth) return;
+                const w = item.el.offsetWidth;
+                box.style.left = item.el.offsetLeft + w / 2 + 'px';
+                box.style.top = item.el.offsetTop + item.el.offsetHeight * .75 + 'px';
+                box.style.width = w * .9 + 'px';
+                box.style.fontSize = Math.max(12, w * .055) + 'px';
+            });
+        } else {
+            placeOnPark(parkMap, parkMapArea);
+            calendarBtn.style.width = parkMap.offsetWidth * .7 + 'px';
+            calendarBtn.style.left = parkMap.offsetLeft + parkMap.offsetWidth / 2 + 'px';
+            calendarBtn.style.top = parkMap.offsetTop + parkMap.offsetHeight * .7 + 'px';
+        }
     }
 
     window.addEventListener('resize', layoutPark);
@@ -211,6 +270,15 @@ document.addEventListener('DOMContentLoaded', function () {
         item.el.addEventListener('load', layoutPark);
     });
     parkMap.addEventListener('load', layoutPark);
+
+    parkWorld.addEventListener('click', function (e) {
+        const box = e.target.closest('.mo-att');
+        if (!box) return;
+        const item = attractions.find(function (att) {
+            return att.el.classList.contains(box.dataset.att + '-att');
+        });
+        if (item) openModal(item);
+    });
 
     const freddy = document.querySelector('.freddy');
     const bubble = document.querySelector('.freddy-bubble');
@@ -306,13 +374,42 @@ document.addEventListener('DOMContentLoaded', function () {
     }
 
     function startFreddy() {
-        pos.x = section01.clientWidth * .5;
-        pos.y = section01.clientHeight * .78;
+        if (mobileQuery.matches && parkMap.offsetWidth) {
+            pos.x = parkMap.offsetLeft + parkMap.offsetWidth / 2;
+            pos.y = calendarBtn.offsetTop + calendarBtn.offsetHeight + freddy.offsetHeight + 10;
+        } else {
+            pos.x = section01.clientWidth * .5;
+            pos.y = section01.clientHeight * .78;
+        }
+        cameraY = 0;
         drawFreddy();
+        updateCamera();
         requestAnimationFrame(tick);
     }
 
-    // 놀이기구 이미지 하단 쪽 입구 위치
+    // 모바일은 프레디가 화면 55%보다 아래, 30%보다 위로 가면 배경이 따라감
+    let cameraY = 0;
+
+    function updateCamera() {
+        if (!mobileQuery.matches) {
+            cameraY = 0;
+            parkWorld.style.transform = '';
+            return;
+        }
+
+        const viewH = section01.clientHeight;
+        const maxY = Math.max(0, parkWorld.offsetHeight - viewH);
+        const screenY = pos.y - cameraY;
+
+        if (screenY > viewH * .55) cameraY = pos.y - viewH * .55;
+        if (screenY < viewH * .3) cameraY = pos.y - viewH * .3;
+        cameraY = Math.min(maxY, Math.max(0, cameraY));
+        parkWorld.style.transform = 'translateY(' + -cameraY + 'px)';
+    }
+
+    window.addEventListener('resize', updateCamera);
+
+    // 입구는 이미지 아래쪽
     function entranceOf(item) {
         const el = item.el;
         return {
@@ -385,8 +482,18 @@ document.addEventListener('DOMContentLoaded', function () {
         return state;
     }
 
-    // 찢어진 정도(0~1)는 드래그 방향대로 오가고, 손을 떼면 그 자리에 남는다
+    // 0이면 붙은 상태, 1이면 다 찢김. 손 떼면 그 각도 유지
     function renderTear(state) {
+        if (mobileQuery.matches) {
+            gsap.set(state.main, {
+                rotation: 16 * state.tear,
+                x: 6 * state.tear,
+                y: state.main.offsetHeight * .5 * state.tear
+            });
+            gsap.set(state.stub, { rotation: 0 });
+            return;
+        }
+
         gsap.set(state.main, {
             rotation: TEAR_ANGLE * state.tear,
             x: state.main.offsetWidth * .35 * state.tear,
@@ -405,13 +512,14 @@ document.addEventListener('DOMContentLoaded', function () {
         renderTear(state);
     }
 
-    // 사용자 클릭 직후여야 새 탭이 팝업 차단되지 않으므로, 떨어지는 모션 도중에 연다
+    // 떨어지는 중에 열어야 새 탭이 막히지 않음
     function completeTear(state) {
         state.done = true;
+        const mobile = mobileQuery.matches;
         gsap.to(state.main, {
-            x: '+=180',
-            y: '+=420',
-            rotation: TEAR_ANGLE + 40,
+            x: mobile ? '+=60' : '+=180',
+            y: mobile ? '+=520' : '+=420',
+            rotation: mobile ? 40 : TEAR_ANGLE + 40,
             autoAlpha: 0,
             duration: .8,
             ease: 'power2.in'
@@ -435,8 +543,12 @@ document.addEventListener('DOMContentLoaded', function () {
 
         state.main.addEventListener('pointermove', function (e) {
             if (!state.drag || e.pointerId !== state.drag.id) return;
-            const pull = (e.clientX - state.drag.x) + (e.clientY - state.drag.y) * .6;
-            const next = Math.max(0, Math.min(1, state.drag.start + pull / (state.main.offsetWidth * 1.4)));
+            const dx = e.clientX - state.drag.x;
+            const dy = e.clientY - state.drag.y;
+            const mobile = mobileQuery.matches;
+            const pull = mobile ? dy + dx * .3 : dx + dy * .6;
+            const span = mobile ? state.main.offsetWidth * .6 : state.main.offsetWidth * 1.4;
+            const next = Math.max(0, Math.min(1, state.drag.start + pull / span));
             state.tear = next > .98 ? 1 : next;
             renderTear(state);
         });
@@ -461,7 +573,7 @@ document.addEventListener('DOMContentLoaded', function () {
     const scheduleItems = calendarMap.querySelectorAll('.map-months li, .map-group');
     const mapDismiss = calendarMap.querySelector('.map-dismiss');
 
-    // 롤 이미지에서 실제 종이가 차지하는 폭 비율, 지도 이미지 좌우 여백 비율
+    // 롤에서 종이가 보이는 비율, 지도 좌우 여백
     const ROLL_L_VISIBLE = 197 / 455;
     const ROLL_R_VISIBLE = 202 / 510;
     const MAP_EDGE = 63 / 1442;
@@ -482,7 +594,7 @@ document.addEventListener('DOMContentLoaded', function () {
     let memoTween = null;
     let memoFlutter = null;
 
-    // 작은 메모지는 지도 오른쪽 위 모서리에 걸쳐 붙는다
+    // 메모 접혀 있을 때 위치 (지도 오른쪽 위)
     function memoSmallPos() {
         const stage = memo.parentElement;
         return {
@@ -565,7 +677,7 @@ document.addEventListener('DOMContentLoaded', function () {
         gsap.set(rollL, { x: -moveL });
         gsap.set(rollR, { x: moveR });
 
-        // 롤 가운데를 경계로 지도를 드러내고, 마지막에 가장자리까지 연다
+        // 롤 사이로 열고, 마지막에 가장자리까지
         const halfL = Math.min(w / 2, unfold.p ? moveL + visL / 2 : 0);
         const halfR = Math.min(w / 2, unfold.p ? moveR + visR / 2 : 0);
         const insetL = (w / 2 - halfL) * (1 - unfold.edge);
@@ -705,7 +817,7 @@ document.addEventListener('DOMContentLoaded', function () {
     });
 
     section01.addEventListener('pointerdown', function (e) {
-        if (modalOpen || e.target.closest('button, a')) return;
+        if (modalOpen || e.target.closest('button, a, .mo-att, .joystick')) return;
         hideBubble();
 
         const clicked = attractions.find(function (item) {
@@ -717,7 +829,7 @@ document.addEventListener('DOMContentLoaded', function () {
             return;
         }
 
-        const rect = section01.getBoundingClientRect();
+        const rect = parkWorld.getBoundingClientRect();
         const point = { x: e.clientX - rect.left, y: e.clientY - rect.top };
         if (blockedByMap(point.x, point.y)) return;
         target = point;
@@ -739,6 +851,50 @@ document.addEventListener('DOMContentLoaded', function () {
 
     window.addEventListener('blur', releaseKeys);
 
+    const joystick = document.querySelector('.joystick');
+    const joystickKnob = joystick.querySelector('.joystick-knob');
+    const joy = { x: 0, y: 0, id: null };
+
+    function moveJoystick(e) {
+        const rect = joystick.getBoundingClientRect();
+        const radius = rect.width / 2;
+        let x = e.clientX - (rect.left + radius);
+        let y = e.clientY - (rect.top + radius);
+        const dist = Math.hypot(x, y);
+        if (dist > radius) {
+            x = x / dist * radius;
+            y = y / dist * radius;
+        }
+        joy.x = x / radius;
+        joy.y = y / radius;
+        joystickKnob.style.transform = 'translate(calc(-50% + ' + x + 'px), calc(-50% + ' + y + 'px))';
+    }
+
+    function releaseJoystick(e) {
+        if (e.pointerId !== joy.id) return;
+        joy.id = null;
+        joy.x = joy.y = 0;
+        joystickKnob.style.transform = '';
+    }
+
+    joystick.addEventListener('pointerdown', function (e) {
+        if (modalOpen) return;
+        e.preventDefault();
+        e.stopPropagation();
+        hideBubble();
+        target = null;
+        joy.id = e.pointerId;
+        joystick.setPointerCapture(e.pointerId);
+        moveJoystick(e);
+    });
+
+    joystick.addEventListener('pointermove', function (e) {
+        if (e.pointerId === joy.id) moveJoystick(e);
+    });
+
+    joystick.addEventListener('pointerup', releaseJoystick);
+    joystick.addEventListener('pointercancel', releaseJoystick);
+
     let lastTime = performance.now();
 
     function tick(now) {
@@ -750,11 +906,17 @@ document.addEventListener('DOMContentLoaded', function () {
         let dx = (held.right ? 1 : 0) - (held.left ? 1 : 0);
         let dy = (held.down ? 1 : 0) - (held.up ? 1 : 0);
 
+        const joyLen = Math.hypot(joy.x, joy.y);
+
         if (dx || dy) {
             const len = Math.hypot(dx, dy);
             pos.x += dx / len * SPEED * dt;
             pos.y += dy / len * SPEED * dt;
             face(dx, dy);
+        } else if (joyLen > .2 && !modalOpen) {
+            pos.x += joy.x * SPEED * dt;
+            pos.y += joy.y * SPEED * dt;
+            face(joy.x, joy.y);
         } else if (target) {
             dx = target.x - pos.x;
             dy = target.y - pos.y;
@@ -778,15 +940,19 @@ document.addEventListener('DOMContentLoaded', function () {
         if (blockedByMap(pos.x, nextY)) pos.y = prevY;
         if (target && pos.x === prevX && pos.y === prevY) target = null;
 
-        pos.x = Math.min(section01.clientWidth - 12, Math.max(12, pos.x));
-        pos.y = Math.min(section01.clientHeight - 12, Math.max(12, pos.y));
+        pos.x = Math.min(parkWorld.offsetWidth - 12, Math.max(12, pos.x));
+        const minY = mobileQuery.matches && parkMap.offsetHeight
+            ? parkMap.offsetTop + parkMap.offsetHeight + freddy.offsetHeight
+            : 12;
+        pos.y = Math.min(parkWorld.offsetHeight - 12, Math.max(minY, pos.y));
 
         drawFreddy();
+        updateCamera();
         animateWalk(Math.hypot(pos.x - prevX, pos.y - prevY) > .2, dt);
 
         attractions.forEach(function (item) {
             const inside = isInside(item);
-            if (inside && !item.inside && !modalOpen) openModal(item);
+            if (inside && !item.inside && !modalOpen && !mobileQuery.matches) openModal(item);
             item.inside = inside;
         });
 

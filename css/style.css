@@ -200,6 +200,11 @@ button {
     display: block;
 }
 
+.park-world {
+    position: absolute;
+    inset: 0;
+}
+
 .attraction,
 .park-map {
     position: absolute;
@@ -309,6 +314,11 @@ button {
 }
 
 .freddy-bubble[hidden] {
+    display: none;
+}
+
+.mo-att,
+.joystick {
     display: none;
 }
 
@@ -423,7 +433,7 @@ button {
     line-height: 1.6;
 }
 
-.modal:has(> .upcoming-event) {
+.dub-modal {
     flex-direction: column;
 }
 
@@ -433,7 +443,7 @@ button {
 
 .upcoming-event img {
     display: block;
-    width: 100%;
+    width: 100%; 
     height: auto;
 }
 
@@ -452,16 +462,24 @@ button {
     user-select: none;
 }
 
-.class-modal .ticket { aspect-ratio: 2.97554 / 1; }
-.race-modal .ticket { aspect-ratio: 3.081505 / 1; }
-.speech-modal .ticket { aspect-ratio: 3.015526 / 1; }
-.dub-modal .ticket { aspect-ratio: 2.786685 / 1; }
+.class-modal .ticket { aspect-ratio: 2.98 / 1; }
+.race-modal .ticket { aspect-ratio: 3.08 / 1; }
+.speech-modal .ticket { aspect-ratio: 3.02 / 1; }
+.dub-modal .ticket { aspect-ratio: 2.79 / 1; }
 
 .ticket-main,
 .ticket-stub {
     position: absolute;
     display: block;
     -webkit-user-drag: none;
+}
+
+.ticket picture {
+    display: contents;
+}
+
+.guide-mo {
+    display: none;
 }
 
 .ticket-main img,
@@ -483,17 +501,17 @@ button {
     cursor: grab;
 }
 
-.class-modal .ticket-stub { top: 0; width: 74.1296%; height: 100%; }
-.class-modal .ticket-main { left: 74.1296%; top: 0; width: 25.8704%; height: 100%; }
+.class-modal .ticket-stub { top: 0; width: 74.13%; height: 100%; }
+.class-modal .ticket-main { left: 74.13%; top: 0; width: 25.87%; height: 100%; }
 
-.race-modal .ticket-stub { top: 0; width: 74.2625%; height: 99.8433%; }
-.race-modal .ticket-main { left: 74.2625%; top: 0; width: 25.7375%; height: 100%; }
+.race-modal .ticket-stub { top: 0; width: 74.26%; height: 99.84%; }
+.race-modal .ticket-main { left: 74.26%; top: 0; width: 25.74%; height: 100%; }
 
-.speech-modal .ticket-stub { top: 0.0107%; width: 75.5651%; height: 94.8606%; }
-.speech-modal .ticket-main { left: 75.5651%; top: 2.98%; width: 23.702%; height: 97%; }
+.speech-modal .ticket-stub { top: 0; width: 75.57%; height: 94.86%; }
+.speech-modal .ticket-main { left: 75.57%; top: 2.98%; width: 23.7%; height: 97%; }
 
-.dub-modal .ticket-stub { top: 0; width: 73.5739%; height: 96.7391%; }
-.dub-modal .ticket-main { left: 73.5739%; top: 0.2717%; width: 26.4261%; height: 99.7283%; }
+.dub-modal .ticket-stub { top: 0; width: 73.57%; height: 96.74%; }
+.dub-modal .ticket-main { left: 73.57%; top: 0.27%; width: 26.43%; height: 99.73%; }
 
 .ticket-main.is-dragging {
     cursor: grabbing;
@@ -514,21 +532,22 @@ button {
     gap: 8%;
     display: flex;
     flex-direction: column;
-    justify-content: flex-start;
+    justify-content: center;
     text-align: center;
 }
 
 .ticket-copy h3 {
-    margin: 0 0 1.2cqw;
-    font-size: 5cqw;
+    margin: 0 0 1cqw;
+    font-size: 3.2cqw;
     font-weight: 900;
     line-height: 1.2;
 }
 
 .ticket-copy p {
     margin: 0;
-    font-size: 2.6cqw;
+    font-size: 1.7cqw;
     font-weight: 700;
+    line-height: 1.5;
 }
 
 .ticket-when {
@@ -540,7 +559,7 @@ button {
     align-items: center;
     justify-content: center;
     color: #222;
-    font-size: 2cqw;
+    font-size: 1.7cqw;
     font-weight: 500;
     text-align: center;
 }
@@ -571,24 +590,6 @@ button {
 .dub-modal .ticket-when,
 .dub-modal .ticket-guide {
     color: #006cf2;
-}
-
-.ticket-copy {
-    justify-content: center;
-}
-
-.ticket-copy h3 {
-    margin-bottom: 1cqw;
-    font-size: 3.2cqw;
-}
-
-.ticket-copy p {
-    font-size: 1.7cqw;
-    line-height: 1.5;
-}
-
-.ticket-when {
-    font-size: 1.7cqw;
 }
 
 .class-modal .ticket-copy { left: 50.5%; right: 16.5%; top: 10%; bottom: 35%; }
@@ -930,6 +931,160 @@ button {
 
 .map-dismiss:hover {
     background: #e8f2ff;
+}
+
+@media (max-width: 1025px) {
+    .modal-close {
+        position: absolute;
+        top: 16px;
+        right: 16px;
+        z-index: 2;
+        width: 44px;
+        min-width: 0;
+        height: 44px;
+        margin-top: 0;
+        padding: 0;
+        border-radius: 50%;
+        font-size: 0;
+    }
+
+    .modal-close::before {
+        content: "×";
+        font-size: 32px;
+        line-height: 1;
+    }
+
+    .section01 {
+        background-image: none;
+    }
+
+    .park-world {
+        bottom: auto;
+        aspect-ratio: 724 / 2172;
+        background: url("../images/event-park-bg-mo.png") center top / 100% auto no-repeat;
+        will-change: transform;
+    }
+
+    .mo-att {
+        position: absolute;
+        z-index: 4;
+        display: block;
+        aspect-ratio: 2172 / 724;
+        margin-top: .35em;
+        padding: 0;
+        border: 0;
+        background: url("../images/mo-event-name.png") center / 100% 100% no-repeat;
+        transform: translateX(-50%);
+        cursor: pointer;
+    }
+
+    .mo-att span {
+        position: absolute;
+        left: 8%;
+        right: 8%;
+        top: 11%;
+        height: 32%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: #7a3e0c;
+        font-weight: 900;
+        line-height: 1.15;
+        white-space: nowrap;
+        pointer-events: none;
+    }
+
+    .control-hint {
+        display: none;
+    }
+
+    .ticket {
+        width: min(86vw, calc((100svh - 130px) * var(--ratio)));
+    }
+
+    .class-modal .ticket { --ratio: .459; aspect-ratio: .459; }
+    .race-modal .ticket { --ratio: .4136; aspect-ratio: .4136; }
+    .speech-modal .ticket { --ratio: .448; aspect-ratio: .448; }
+    .dub-modal .ticket { --ratio: .4532; aspect-ratio: .4532; }
+
+    .ticket-stub {
+        transform-origin: 50% 100%;
+    }
+
+    .ticket-main {
+        transform-origin: 3% 0%;
+    }
+
+    .class-modal .ticket-stub { top: 0; width: 100%; height: 76.91%; }
+    .class-modal .ticket-main { left: 0; top: 76.81%; width: 100%; height: 24.12%; }
+
+    .race-modal .ticket-stub { top: 0; width: 100%; height: 82.82%; }
+    .race-modal .ticket-main { left: 0; top: 82.71%; width: 100%; height: 17.45%; }
+
+    .speech-modal .ticket-stub { top: 0; width: 100%; height: 80.21%; }
+    .speech-modal .ticket-main { left: 0; top: 80.15%; width: 100%; height: 20.18%; }
+
+    .dub-modal .ticket-stub { top: 0; width: 100%; height: 76.57%; }
+    .dub-modal .ticket-main { left: 0; top: 76.45%; width: 100%; height: 23.77%; }
+
+    .ticket-copy h3 {
+        font-size: 7cqw;
+    }
+
+    .ticket-copy p,
+    .ticket-when {
+        font-size: 4.2cqw;
+    }
+
+    .class-modal .ticket-copy { left: 9%; right: 9%; top: 18%; bottom: 60%; }
+    .class-modal .ticket-when { left: 14%; right: 14%; top: 85.4%; height: 6.9%; }
+
+    .race-modal .ticket-copy { left: 8%; right: 8%; top: 15%; bottom: 59%; }
+    .race-modal .ticket-when { left: 12%; right: 12%; top: 91.3%; height: 5.4%; }
+
+    .speech-modal .ticket-copy { left: 9%; right: 9%; top: 19%; bottom: 58%; }
+    .speech-modal .ticket-when { left: 14%; right: 14%; top: 84.5%; height: 7.3%; }
+
+    .dub-modal .ticket-copy { left: 9%; right: 9%; top: 19.5%; bottom: 52%; }
+    .dub-modal .ticket-when { left: 14%; right: 14%; top: 88.4%; height: 6.8%; }
+
+    .ticket-guide {
+        left: 10%;
+        right: 10%;
+        top: 40%;
+        font-size: 4.2cqw;
+    }
+
+    .guide-pc {
+        display: none;
+    }
+
+    .guide-mo {
+        display: inline;
+    }
+
+    .joystick {
+        position: absolute;
+        left: 16px;
+        bottom: calc(16px + env(safe-area-inset-bottom));
+        z-index: 7;
+        display: block;
+        width: 132px;
+        height: 127px;
+        background: url("../images/mo-joystick-bg.png") center / contain no-repeat;
+        touch-action: none;
+    }
+
+    .joystick-knob {
+        position: absolute;
+        left: 50%;
+        top: 50%;
+        width: 46%;
+        height: 46%;
+        background: url("../images/mo-joystick.png") center / contain no-repeat;
+        transform: translate(-50%, -50%);
+        pointer-events: none;
+    }
 }
 
 @media (max-width: 768px) {
