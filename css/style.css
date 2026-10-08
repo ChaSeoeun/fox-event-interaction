@@ -317,6 +317,10 @@ button {
     display: none;
 }
 
+.bubble-mo {
+    display: none;
+}
+
 .mo-att,
 .joystick {
     display: none;
@@ -952,6 +956,14 @@ button {
         content: "×";
         font-size: 32px;
         line-height: 1;
+    }
+
+    .bubble-pc {
+        display: none;
+    }
+
+    .bubble-mo {
+        display: inline;
     }
 
     .section01 {
