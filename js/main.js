@@ -187,85 +187,98 @@ document.addEventListener('DOMContentLoaded', function () {
 
     syncMapImage();
 
-    // 배경 cover랑 맞춰서 배치
-    function placeOnPark(img, area) {
-        const viewW = section01.clientWidth;
-        const viewH = section01.clientHeight;
-        if (!viewW || !img.naturalWidth) return;
+    const SIGN_H = 724 / 2172;
 
-        const scale = Math.max(viewW / PARK_W, viewH / PARK_H);
-        const offsetX = (viewW - PARK_W * scale) / 2;
-        const offsetY = (viewH - PARK_H * scale) / 2;
+    // 그려진 박스. offsetWidth는 안드로이드에서 이미지 디코딩 전에 0으로 나온다
+    function placeBox(img, area, scale, originX, originY) {
+        if (!scale || !img.naturalWidth) return null;
+
         const ratio = img.naturalWidth / img.naturalHeight;
         let w = area.w;
         let h = area.h;
 
-        if (ratio > w / h) {
-            h = w / ratio;
-        } else {
-            w = h * ratio;
-        }
+        if (ratio > w / h) h = w / ratio;
+        else w = h * ratio;
 
-        img.style.left = offsetX + (area.x + (area.w - w) / 2) * scale + 'px';
-        img.style.top = offsetY + (area.y + (area.h - h) / 2) * scale + 'px';
-        img.style.width = w * scale + 'px';
+        const left = originX + (area.x + (area.w - w) / 2) * scale;
+        const top = originY + (area.y + (area.h - h) / 2) * scale;
+        const width = w * scale;
+        const height = h * scale;
+
+        img.style.left = left + 'px';
+        img.style.top = top + 'px';
+        img.style.width = width + 'px';
+        img.style.height = height + 'px';
+        return { left: left, top: top, width: width, height: height };
+    }
+
+    // 배경 cover랑 맞춰서 배치
+    function placeOnPark(img, area) {
+        const viewW = section01.clientWidth;
+        const viewH = section01.clientHeight;
+        if (!viewW || !img.naturalWidth) return null;
+
+        const scale = Math.max(viewW / PARK_W, viewH / PARK_H);
+        return placeBox(
+            img,
+            area,
+            scale,
+            (viewW - PARK_W * scale) / 2,
+            (viewH - PARK_H * scale) / 2
+        );
     }
 
     // 모바일 배경은 화면 너비에 맞춘 원본 좌표
     function placeInWorld(img, area) {
         const worldW = parkWorld.clientWidth;
-        if (!worldW || !img.naturalWidth) return;
+        if (!worldW || !img.naturalWidth) return null;
+        return placeBox(img, area, worldW / MO_PARK_W, 0, 0);
+    }
 
-        const scale = worldW / MO_PARK_W;
-        const ratio = img.naturalWidth / img.naturalHeight;
-        let w = area.w;
-        let h = area.h;
-
-        if (ratio > w / h) {
-            h = w / ratio;
-        } else {
-            w = h * ratio;
-        }
-
-        img.style.left = (area.x + (area.w - w) / 2) * scale + 'px';
-        img.style.top = (area.y + (area.h - h) / 2) * scale + 'px';
-        img.style.width = w * scale + 'px';
+    function placeCalendar(box, widthScale, topRatio) {
+        const width = box.width * widthScale;
+        calendarBtn.style.width = width + 'px';
+        calendarBtn.style.height = width * SIGN_H + 'px';
+        calendarBtn.style.left = box.left + box.width / 2 + 'px';
+        calendarBtn.style.top = box.top + box.height * topRatio + 'px';
     }
 
     function layoutPark() {
         syncMapImage();
-        if (!parkMap.complete) return;
+        const mobile = mobileQuery.matches;
 
         attractions.forEach(function (item) {
-            if (mobileQuery.matches) placeInWorld(item.el, item.areaMo);
-            else placeOnPark(item.el, item.area);
+            const box = mobile ? placeInWorld(item.el, item.areaMo) : placeOnPark(item.el, item.area);
+            if (box) item.box = box;
         });
 
-        if (mobileQuery.matches) {
-            placeInWorld(parkMap, parkMapAreaMo);
-            calendarBtn.style.width = parkMap.offsetWidth * .5 + 'px';
-            calendarBtn.style.left = parkMap.offsetLeft + parkMap.offsetWidth / 2 + 'px';
-            calendarBtn.style.top = parkMap.offsetTop + parkMap.offsetHeight * .68 + 'px';
-            document.querySelectorAll('.mo-att').forEach(function (box) {
-                const item = attractions.find(function (att) {
-                    return att.el.classList.contains(box.dataset.att + '-att');
-                });
-                if (!item || !item.el.offsetWidth) return;
-                const w = item.el.offsetWidth;
-                box.style.left = item.el.offsetLeft + w / 2 + 'px';
-                box.style.top = item.el.offsetTop + item.el.offsetHeight * .75 + 'px';
-                box.style.width = w * .9 + 'px';
-                box.style.fontSize = Math.max(12, w * .055) + 'px';
-            });
-        } else {
-            placeOnPark(parkMap, parkMapArea);
-            calendarBtn.style.width = parkMap.offsetWidth * .7 + 'px';
-            calendarBtn.style.left = parkMap.offsetLeft + parkMap.offsetWidth / 2 + 'px';
-            calendarBtn.style.top = parkMap.offsetTop + parkMap.offsetHeight * .7 + 'px';
+        if (parkMap.complete && parkMap.naturalWidth) {
+            const mapBox = mobile ? placeInWorld(parkMap, parkMapAreaMo) : placeOnPark(parkMap, parkMapArea);
+            if (mapBox) placeCalendar(mapBox, mobile ? .5 : .7, mobile ? .68 : .7);
         }
+
+        if (!mobile) return;
+
+        document.querySelectorAll('.mo-att').forEach(function (nameplate) {
+            const item = attractions.find(function (att) {
+                return att.el.classList.contains(nameplate.dataset.att + '-att');
+            });
+            if (!item || !item.box) return;
+
+            const box = item.box;
+            const width = box.width * .9;
+            const fontSize = Math.max(12, box.width * .055);
+            nameplate.style.left = box.left + box.width / 2 + 'px';
+            nameplate.style.top = box.top + box.height * .75 + 'px';
+            nameplate.style.width = width + 'px';
+            nameplate.style.height = width * SIGN_H + 'px';
+            nameplate.style.fontSize = fontSize + 'px';
+            nameplate.style.marginTop = fontSize * .35 + 'px';
+        });
     }
 
     window.addEventListener('resize', layoutPark);
+    if (window.visualViewport) window.visualViewport.addEventListener('resize', layoutPark);
     attractions.forEach(function (item) {
         item.el.addEventListener('load', layoutPark);
     });

@@ -10,6 +10,8 @@ html,
 body {
     width: 100%;
     min-height: 100%;
+    -webkit-text-size-adjust: 100%;
+    text-size-adjust: 100%;
 }
 
 body {
@@ -232,12 +234,14 @@ button {
     background: none;
     cursor: pointer;
     transform: translateX(-50%);
+    appearance: none;
+    -webkit-appearance: none;
 }
 
 .calendar-btn img {
     display: block;
     width: 100%;
-    height: auto;
+    height: 100%;
     transform-origin: 50% 0;
     animation: calendar-swing 2.4s ease-in-out infinite;
 }
@@ -981,13 +985,15 @@ button {
         position: absolute;
         z-index: 4;
         display: block;
-        aspect-ratio: 2172 / 724;
-        margin-top: .35em;
+        margin-top: 0;
         padding: 0;
         border: 0;
         background: url("../images/mo-event-name.png") center / 100% 100% no-repeat;
         transform: translateX(-50%);
         cursor: pointer;
+        appearance: none;
+        -webkit-appearance: none;
+        line-height: 1;
     }
 
     .mo-att span {
