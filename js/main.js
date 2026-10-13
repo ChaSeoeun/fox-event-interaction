@@ -590,8 +590,10 @@ document.addEventListener('DOMContentLoaded', function () {
     const ROLL_L_VISIBLE = 197 / 455;
     const ROLL_R_VISIBLE = 202 / 510;
     const MAP_EDGE = 63 / 1442;
+    const MAP_EDGE_Y = 50 / 1620;
 
     const memo = calendarMap.querySelector('.map-memo');
+    const memoFloat = calendarMap.querySelector('.memo-float');
     const memoPaper = memo.querySelector('.memo-paper');
     const memoTab = memo.querySelector('.memo-tab');
     const memoTable = memo.querySelector('.memo-table');
@@ -620,7 +622,8 @@ document.addEventListener('DOMContentLoaded', function () {
 
     function startFlutter() {
         stopFlutter();
-        memoFlutter = gsap.fromTo(memoPaper, {
+        const target = mobileQuery.matches && !memoBig ? memoFloat : memoPaper;
+        memoFlutter = gsap.fromTo(target, {
             rotation: MEMO_UPRIGHT - 3,
             skewX: 1.5
         }, {
@@ -644,6 +647,7 @@ document.addEventListener('DOMContentLoaded', function () {
         memoBig = false;
         gsap.set(memo, Object.assign({ xPercent: -50, yPercent: -50, autoAlpha: 0 }, memoSmallPos()));
         gsap.set(memoPaper, { rotation: MEMO_UPRIGHT, skewX: 0, transformOrigin: '50% 50%' });
+        gsap.set(memoFloat, { autoAlpha: 0, y: 0, scale: 1, rotation: MEMO_UPRIGHT, skewX: 0, transformOrigin: '70% 40%' });
         gsap.set(memoTab, { autoAlpha: 1 });
         gsap.set(memoContent, { autoAlpha: 0 });
     }
@@ -653,11 +657,16 @@ document.addEventListener('DOMContentLoaded', function () {
         memoBig = true;
         stopFlutter();
         if (memoTween) memoTween.kill();
+        if (mobileQuery.matches) {
+            gsap.set(memoFloat, { autoAlpha: 0 });
+            gsap.set(memo, Object.assign({ autoAlpha: 0, xPercent: -50, yPercent: -50 }, memoSmallPos()));
+        }
 
         memoTween = gsap.timeline();
         memoTween.to(memoPaper, { rotation: MEMO_UPRIGHT, skewX: 0, duration: .2 });
         memoTween.to(memoTab, { autoAlpha: 0, duration: .15 }, 0);
         memoTween.to(memo, {
+            autoAlpha: 1,
             x: 0,
             y: 0,
             scale: 1,
@@ -672,13 +681,58 @@ document.addEventListener('DOMContentLoaded', function () {
         memoBig = false;
         if (memoTween) memoTween.kill();
 
-        memoTween = gsap.timeline({ onComplete: startFlutter });
+        memoTween = gsap.timeline({
+            onComplete: function () {
+                if (mobileQuery.matches) {
+                    gsap.set(memo, { autoAlpha: 0 });
+                    gsap.to(memoFloat, { autoAlpha: 1, duration: .2 });
+                }
+                startFlutter();
+            }
+        });
         memoTween.to(memoContent, { autoAlpha: 0, duration: .2 });
-        memoTween.to(memo, Object.assign({ duration: .6, ease: 'power3.inOut' }, memoSmallPos()));
-        memoTween.to(memoTab, { autoAlpha: 1, duration: .2 }, '-=.15');
+        memoTween.to(memo, Object.assign({
+            autoAlpha: mobileQuery.matches ? 0 : 1,
+            duration: .6,
+            ease: 'power3.inOut'
+        }, memoSmallPos()));
+        if (!mobileQuery.matches) memoTween.to(memoTab, { autoAlpha: 1, duration: .2 }, '-=.15');
+    }
+
+    // 모바일은 롤을 눕혀서 위(왼쪽 롤)·아래(오른쪽 롤)로 펼침
+    function renderUnfoldVertical() {
+        const h = mapSheet.offsetHeight;
+        const thickL = rollL.offsetWidth;
+        const thickR = rollR.offsetWidth;
+        const visL = thickL * ROLL_L_VISIBLE;
+        const visR = thickR * ROLL_R_VISIBLE;
+        const travelL = h / 2 - h * MAP_EDGE_Y - visL;
+        const travelR = h / 2 - h * MAP_EDGE_Y - visR;
+        const moveL = travelL * unfold.p;
+        const moveR = travelR * unfold.p;
+
+        gsap.set(rollL, { xPercent: -50, yPercent: -50, x: 0, rotation: 90, y: -(thickL / 2 + moveL) });
+        gsap.set(rollR, { xPercent: -50, yPercent: -50, x: 0, rotation: 90, y: thickR / 2 + moveR });
+
+        const halfT = Math.min(h / 2, unfold.p ? moveL + visL / 2 : 0);
+        const halfB = Math.min(h / 2, unfold.p ? moveR + visR / 2 : 0);
+        const insetT = (h / 2 - halfT) * (1 - unfold.edge);
+        const insetB = (h / 2 - halfB) * (1 - unfold.edge);
+        mapSheet.style.clipPath = 'inset(' + insetT + 'px 0 ' + insetB + 'px 0)';
+        mapSheet.style.webkitClipPath = mapSheet.style.clipPath;
+    }
+
+    // 모바일은 y를 펼침 위치로 쓰므로 등장/퇴장은 크기로만
+    function rollPop(y, scale) {
+        return mobileQuery.matches ? { scale: scale } : { y: y, scale: scale };
     }
 
     function renderUnfold() {
+        if (mobileQuery.matches) {
+            renderUnfoldVertical();
+            return;
+        }
+
         const w = mapSheet.offsetWidth;
         const visL = rollL.offsetWidth * ROLL_L_VISIBLE;
         const visR = rollR.offsetWidth * ROLL_R_VISIBLE;
@@ -687,8 +741,8 @@ document.addEventListener('DOMContentLoaded', function () {
         const moveL = travelL * unfold.p;
         const moveR = travelR * unfold.p;
 
-        gsap.set(rollL, { x: -moveL });
-        gsap.set(rollR, { x: moveR });
+        gsap.set(rollL, { xPercent: 0, yPercent: 0, rotation: 0, x: -moveL });
+        gsap.set(rollR, { xPercent: 0, yPercent: 0, rotation: 0, x: moveR });
 
         // 롤 사이로 열고, 마지막에 가장자리까지
         const halfL = Math.min(w / 2, unfold.p ? moveL + visL / 2 : 0);
@@ -696,6 +750,7 @@ document.addEventListener('DOMContentLoaded', function () {
         const insetL = (w / 2 - halfL) * (1 - unfold.edge);
         const insetR = (w / 2 - halfR) * (1 - unfold.edge);
         mapSheet.style.clipPath = 'inset(0 ' + insetR + 'px 0 ' + insetL + 'px)';
+        mapSheet.style.webkitClipPath = mapSheet.style.clipPath;
     }
 
     function openCalendarMap() {
@@ -713,8 +768,9 @@ document.addEventListener('DOMContentLoaded', function () {
         gsap.set(mapBackdrop, { opacity: 0 });
         gsap.set(mapDismiss, { autoAlpha: 0 });
         gsap.set(scheduleItems, { autoAlpha: 1 });
-        gsap.set(rolls, { autoAlpha: 0, y: 40, scale: .7, transformOrigin: '50% 50%' });
+        if (!mobileQuery.matches) gsap.set(rolls, { y: 0 });
         renderUnfold();
+        gsap.set(rolls, Object.assign({ autoAlpha: 0, transformOrigin: '50% 50%' }, rollPop(40, .7)));
         resetMemo();
 
         mapTween = gsap.timeline({
@@ -726,13 +782,11 @@ document.addEventListener('DOMContentLoaded', function () {
 
         mapTween.to(mapBackdrop, { opacity: 1, duration: .3, ease: 'power1.out' });
 
-        mapTween.to(rolls, {
+        mapTween.to(rolls, Object.assign({
             autoAlpha: 1,
-            y: 0,
-            scale: 1,
             duration: .55,
             ease: 'back.out(1.6)'
-        }, .05);
+        }, rollPop(0, 1)), .05);
 
         mapTween.to(unfold, {
             p: 1,
@@ -757,16 +811,17 @@ document.addEventListener('DOMContentLoaded', function () {
         mapTween.to(mapDismiss, { autoAlpha: 1, duration: .25 }, 2.1);
 
         const small = memoSmallPos();
-        mapTween.fromTo(memo, {
+        const floater = mobileQuery.matches ? memoFloat : memo;
+        mapTween.fromTo(floater, {
             autoAlpha: 0,
-            y: small.y - 40,
-            scale: MEMO_SMALL * 1.5,
+            y: mobileQuery.matches ? 16 : small.y - 40,
+            scale: mobileQuery.matches ? .7 : MEMO_SMALL * 1.5,
             rotation: -20
         }, {
             autoAlpha: 1,
-            y: small.y,
-            scale: MEMO_SMALL,
-            rotation: 0,
+            y: mobileQuery.matches ? 0 : small.y,
+            scale: mobileQuery.matches ? 1 : MEMO_SMALL,
+            rotation: mobileQuery.matches ? MEMO_UPRIGHT : 0,
             duration: .5,
             ease: 'back.out(1.8)',
             onComplete: startFlutter
@@ -790,8 +845,8 @@ document.addEventListener('DOMContentLoaded', function () {
 
         stopFlutter();
         if (memoTween) memoTween.kill();
-        mapTween.to([mapDismiss, scheduleItems, memo], { autoAlpha: 0, duration: .15 });
-        mapTween.to(rolls, { autoAlpha: 1, y: 0, scale: 1, duration: .15 }, 0);
+        mapTween.to([mapDismiss, scheduleItems, memo, memoFloat], { autoAlpha: 0, duration: .15 });
+        mapTween.to(rolls, Object.assign({ autoAlpha: 1, duration: .15 }, rollPop(0, 1)), 0);
         mapTween.to(unfold, { edge: 0, duration: .15, onUpdate: renderUnfold }, 0);
 
         mapTween.to(unfold, {
@@ -801,13 +856,11 @@ document.addEventListener('DOMContentLoaded', function () {
             onUpdate: renderUnfold
         }, .12);
 
-        mapTween.to(rolls, {
+        mapTween.to(rolls, Object.assign({
             autoAlpha: 0,
-            y: 30,
-            scale: .7,
             duration: .25,
             ease: 'power2.in'
-        }, .65);
+        }, rollPop(30, .7)), .65);
 
         mapTween.to(mapBackdrop, { opacity: 0, duration: .25 }, .7);
     }
@@ -819,14 +872,21 @@ document.addEventListener('DOMContentLoaded', function () {
         if (e.key === 'Escape') closeCalendarMap();
     });
     memoTab.addEventListener('click', showTable);
+    memoFloat.addEventListener('click', showTable);
     memo.addEventListener('click', function (e) {
         if (e.target.closest('.memo-back')) showCalendar();
     });
 
-    window.addEventListener('resize', function () {
+    function refreshMap() {
         if (mapState === 'closed') return;
         renderUnfold();
         if (!memoBig) gsap.set(memo, memoSmallPos());
+    }
+
+    window.addEventListener('resize', refreshMap);
+    if (window.visualViewport) window.visualViewport.addEventListener('resize', refreshMap);
+    rolls.concat(calendarMap.querySelector('.map-open')).forEach(function (img) {
+        img.addEventListener('load', refreshMap);
     });
 
     section01.addEventListener('pointerdown', function (e) {

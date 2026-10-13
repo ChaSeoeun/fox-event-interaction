@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Little Fox Event Park</title>
-    <link rel="stylesheet" href="./css/style.css?20261012">
+    <link rel="stylesheet" href="./css/style.css?2026101312">
 </head>
 <body>
     <div class="event-wrap">
@@ -168,7 +168,10 @@
         <div class="map-frame">
             <div class="map-stage">
                 <div class="map-sheet">
-                    <img class="map-open" src="./images/event-map-open.png" alt="연간 이벤트 일정">
+                    <picture>
+                        <source media="(max-width: 1025px)" srcset="./images/mo-event-map-open.png">
+                        <img class="map-open" src="./images/event-map-open.png" alt="연간 이벤트 일정">
+                    </picture>
                     <ol class="map-schedule">
                         <li class="map-row">
                             <ul class="map-months">
@@ -206,9 +209,16 @@
                 </div>
                 <img class="map-roll map-roll-l" src="./images/event-map-roll-l.png" alt="">
                 <img class="map-roll map-roll-r" src="./images/event-map-roll-r.png" alt="">
+                <button type="button" class="memo-float">
+                    <img src="./images/mo-map-tab-btn.png" alt="">
+                    <span>표로 보기</span>
+                </button>
                 <div class="map-memo">
                     <div class="memo-paper">
-                        <img src="./images/map-tab.png" alt="">
+                        <picture>
+                            <source media="(max-width: 1025px)" srcset="./images/mo-map-tab.png">
+                            <img src="./images/map-tab.png" alt="">
+                        </picture>
                         <button type="button" class="memo-tab">표로 보기</button>
                         <button type="button" class="memo-back">달력으로 보기</button>
                         <div class="memo-table">
@@ -291,7 +301,10 @@
                                 </tbody>
                             </table>
                         </div>
-                        <img class="memo-curl" src="./images/map-tab.png" alt="">
+                        <picture class="memo-curl">
+                            <source media="(max-width: 1025px)" srcset="./images/mo-map-tab.png">
+                            <img src="./images/map-tab.png" alt="">
+                        </picture>
                     </div>
                 </div>
             </div>
@@ -299,6 +312,6 @@
         </div>
     </div>
     <script src="https://cdn.jsdelivr.net/npm/gsap@3.13.0/dist/gsap.min.js"></script>
-    <script src="./js/main.js?20261012"></script>
+    <script src="./js/main.js?2026101312"></script>
 </body>
 </html>
