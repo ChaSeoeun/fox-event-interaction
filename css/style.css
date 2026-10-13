@@ -975,14 +975,6 @@ button {
         line-height: 1;
     }
 
-    .bubble-pc {
-        display: none;
-    }
-
-    .bubble-mo {
-        display: inline;
-    }
-
     .section01 {
         background-image: none;
     }
@@ -1023,10 +1015,6 @@ button {
         line-height: 1.15;
         white-space: nowrap;
         pointer-events: none;
-    }
-
-    .control-hint {
-        display: none;
     }
 
     .map-overlay {
@@ -1234,6 +1222,21 @@ button {
 
     .guide-mo {
         display: inline;
+    }
+}
+
+/* 아이패드 프로 13형 가로(1376) 이하이면서 터치가 주 입력일 때만. 맥북은 pointer: fine */
+@media (max-width: 1376px) and (hover: none) and (pointer: coarse) {
+    .bubble-pc {
+        display: none;
+    }
+
+    .bubble-mo {
+        display: inline;
+    }
+
+    .control-hint {
+        display: none;
     }
 
     .joystick {
