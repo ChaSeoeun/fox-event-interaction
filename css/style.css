@@ -1095,7 +1095,7 @@ button {
     background: #e8f2ff;
 }
 
-@media (max-width: 1025px) {
+@media (max-width: 1023px) {
     .event-shortcuts {
         display: none;
     }

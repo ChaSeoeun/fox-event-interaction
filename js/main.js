@@ -52,7 +52,7 @@ document.addEventListener('DOMContentLoaded', function () {
     const introFlash = document.querySelector('.intro-flash');
     const section01 = document.querySelector('.section01');
     const parkWorld = document.querySelector('.park-world');
-    const mobileQuery = window.matchMedia('(max-width: 1025px)');
+    const mobileQuery = window.matchMedia('(max-width: 1023px)');
 
     const DESIGN_WIDTH = 3438;
     const DESIGN_HEIGHT = 2077;
@@ -360,7 +360,7 @@ document.addEventListener('DOMContentLoaded', function () {
         return keyMap[key] || keyMap[key.toLowerCase()];
     }
     const held = { up: false, down: false, left: false, right: false };
-    const SPEED = 340;
+    const SPEED = 220;
     const STEP_TIME = .16;
 
     let pos = { x: 0, y: 0 };
