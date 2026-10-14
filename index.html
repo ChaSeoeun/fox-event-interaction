@@ -4,9 +4,10 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Little Fox Event Park</title>
-    <link rel="stylesheet" href="./css/style.css?2026101408">
+    <link rel="stylesheet" href="./css/style.css?2026101416">
 </head>
 <body>
+    <h1 class="blind">리틀팍스 이벤트</h1>
     <div class="event-wrap">
         <section class="event-intro">
             <div class="park-stage">
@@ -26,12 +27,18 @@
             </div>
         </section>
         <section class="section01">
+            <nav class="event-shortcuts" aria-label="이벤트 바로가기">
+                <button type="button" data-att="class">클래스 챌린지</button>
+                <button type="button" data-att="speech">스피치 콘테스트</button>
+                <button type="button" data-att="race">리딩 레이스</button>
+                <button type="button" data-att="dub">더빙 페스티벌</button>
+            </nav>
             <div class="park-world">
-                <img class="attraction class-att" src="./images/event-cont03.png" alt="CLASS CHALLENGE">
-                <img class="attraction race-att" src="./images/event-cont01.png" alt="READING RACE">
-                <img class="attraction speech-att" src="./images/event-cont02.png" alt="SPEECH CONTEST">
-                <img class="attraction dub-att" src="./images/event-cont04.png" alt="DUBBING FESTIVAL">
-                <img class="park-map" src="./images/event-cont05.png" alt="PARK MAP">
+                <img class="attraction class-att" src="./images/event-cont03.png" alt="클래스 챌린지">
+                <img class="attraction race-att" src="./images/event-cont01.png" alt="리딩 레이스">
+                <img class="attraction speech-att" src="./images/event-cont02.png" alt="스피치 콘테스트">
+                <img class="attraction dub-att" src="./images/event-cont04.png" alt="더빙 페스티벌">
+                <img class="park-map" src="./images/event-cont05.png" alt="">
                 <button type="button" class="calendar-btn" aria-expanded="false" aria-controls="calendar-map">
                     <img src="./images/event-cont06.png" alt="연간 이벤트 일정보기">
                 </button>
@@ -53,7 +60,7 @@
         </section>
     </div>
     <div class="intro-flash"></div>
-    <div class="modal class-modal" hidden>
+    <div class="modal class-modal" hidden role="dialog" aria-modal="true" aria-labelledby="class-modal-title" tabindex="-1">
         <div class="ticket-pop">
             <div class="ticket">
                 <div class="ticket-stub">
@@ -62,7 +69,7 @@
                         <img src="./images/event-pop-cont02.png" alt="" draggable="false">
                     </picture>
                     <div class="ticket-copy">
-                        <h3>CLASS 챌린지</h3>
+                        <h2 id="class-modal-title">CLASS 챌린지</h2>
                         <p>3개월간 꾸준히 클래스에 참여하고 <br>상장과 선물을 받으세요!</p>
                     </div>
                     <p class="ticket-when">진행 시기: 1-3월, 4-6월, 7-9월, 10-12월</p>
@@ -75,11 +82,11 @@
                     <p class="ticket-guide"><span class="guide-pc">티켓 오른쪽 조각을 잡고 아래로 끝까지 찢어 보세요!</span><span class="guide-mo">아래 조각을 잡고 끝까지 내려 찢어 보세요!</span></p>
                 </div>
             </div>
-            <a class="ticket-link" href="https://www.littlefox.co.kr/" target="_blank" rel="noopener" hidden>CLASS 챌린지 바로가기</a>
+            <a class="ticket-link" href="https://www.littlefox.co.kr/" target="_blank" rel="noopener">CLASS 챌린지 바로가기<span class="blind"> (새 창)</span></a>
             <button type="button" class="modal-close">닫기</button>
         </div>
     </div>
-    <div class="modal race-modal" hidden>
+    <div class="modal race-modal" hidden role="dialog" aria-modal="true" aria-labelledby="race-modal-title" tabindex="-1">
         
         <div class="ticket-pop">
             <div class="ticket">
@@ -89,7 +96,7 @@
                         <img src="./images/event-pop-cont01.png" alt="" draggable="false">
                     </picture>
                     <div class="ticket-copy">
-                        <h3>리딩레이스</h3>
+                        <h2 id="race-modal-title">리딩레이스</h2>
                         <p>방학동안 영어 동화를 많이 읽고 <br>상장과 선물을 받는 레이스에 참여하세요!</p>
                     </div>
                     <p class="ticket-when">진행시기: 7-8월, 12-1월</p>
@@ -102,12 +109,12 @@
                     <p class="ticket-guide"><span class="guide-pc">티켓 오른쪽 조각을 잡고 아래로 끝까지 찢어 보세요!</span><span class="guide-mo">아래 조각을 잡고 끝까지 내려 찢어 보세요!</span></p>
                 </div>
             </div>
-            <a class="ticket-link" href="https://www.littlefox.co.kr/" target="_blank" rel="noopener" hidden>READING RACE 바로가기</a>
+            <a class="ticket-link" href="https://www.littlefox.co.kr/" target="_blank" rel="noopener">READING RACE 바로가기<span class="blind"> (새 창)</span></a>
             <button type="button" class="modal-close">닫기</button>
         </div>
        
     </div>
-    <div class="modal speech-modal" hidden>
+    <div class="modal speech-modal" hidden role="dialog" aria-modal="true" aria-labelledby="speech-modal-title" tabindex="-1">
         <div class="ticket-pop">
             <div class="ticket">
                 <div class="ticket-stub">
@@ -116,7 +123,7 @@
                         <img src="./images/event-pop-cont04.png" alt="" draggable="false">
                     </picture>
                     <div class="ticket-copy">
-                        <h3>스피치 콘테스트</h3>
+                        <h2 id="speech-modal-title">스피치 콘테스트</h2>
                         <p>자신 있는 주제로 <br>말하기 실력을 뽐내고 <br>상장과 선물을 받으세요!</p>
                     </div>
                     <p class="ticket-when">진행시기: 10월</p>
@@ -129,15 +136,15 @@
                     <p class="ticket-guide"><span class="guide-pc">티켓 오른쪽 조각을 잡고 아래로 끝까지 찢어 보세요!</span><span class="guide-mo">아래 조각을 잡고 끝까지 내려 찢어 보세요!</span></p>
                 </div>
             </div>
-            <a class="ticket-link" href="https://www.littlefox.co.kr/" target="_blank" rel="noopener" hidden>스피치 콘테스트 바로가기</a>
+            <a class="ticket-link" href="https://www.littlefox.co.kr/" target="_blank" rel="noopener">스피치 콘테스트 바로가기<span class="blind"> (새 창)</span></a>
             <button type="button" class="modal-close">닫기</button>
         </div>
     </div>
-    <div class="modal dub-modal" hidden>
+    <div class="modal dub-modal" hidden role="dialog" aria-modal="true" aria-label="이벤트 준비중" tabindex="-1">
         <div class="upcoming-event">
             <img src="./images/upcoming-event.png" alt="이벤트 준비중">
+            <button type="button" class="modal-close">닫기</button>
         </div>
-        <button type="button" class="modal-close">닫기</button>
         <!-- <div class="ticket-pop">
             <div class="ticket">
                 <div class="ticket-stub">
@@ -146,7 +153,7 @@
                         <img src="./images/event-pop-cont03.png" alt="" draggable="false">
                     </picture>
                     <div class="ticket-copy">
-                        <h3>더빙 페스티벌</h3>
+                        <h2>더빙 페스티벌</h2>
                         <p></p>
                     </div>
                     <p class="ticket-when">진행시기: 6월</p>
@@ -163,7 +170,7 @@
             <button type="button" class="modal-close">닫기</button>
         </div> -->
     </div>
-    <div class="map-overlay" id="calendar-map" hidden role="dialog" aria-modal="true" aria-label="연간 이벤트 일정">
+    <div class="map-overlay" id="calendar-map" hidden role="dialog" aria-modal="true" aria-label="연간 이벤트 일정" tabindex="-1">
         <div class="map-backdrop"></div>
         <div class="map-frame">
             <div class="map-stage">
@@ -176,15 +183,15 @@
                         <li class="map-row">
                             <ul class="map-months">
                                 <li>겨울 리딩레이스</li>
-                                <li></li>
-                                <li></li>
+                                <li aria-hidden="true"></li>
+                                <li aria-hidden="true"></li>
                             </ul>
                             <p class="map-group">1분기 CLASS 챌린지 </p>
                         </li>
                         <li class="map-row">
                             <ul class="map-months">
-                                <li></li>
-                                <li></li>
+                                <li aria-hidden="true"></li>
+                                <li aria-hidden="true"></li>
                                 <li>더빙 페스티벌</li>
                             </ul>
                             <p class="map-group">2분기 CLASS 챌린지 </p>
@@ -193,14 +200,14 @@
                             <ul class="map-months">
                                 <li>여름 리딩레이스</li>
                                 <li>여름 리딩레이스</li>
-                                <li></li>
+                                <li aria-hidden="true"></li>
                             </ul>
                             <p class="map-group">3분기 CLASS 챌린지 </p>
                         </li>
                         <li class="map-row">
                             <ul class="map-months">
                                 <li>스피치 콘테스트</li>
-                                <li></li>
+                                <li aria-hidden="true"></li>
                                 <li>겨울 리딩레이스</li>
                             </ul>
                             <p class="map-group">4분기 CLASS 챌린지 </p>
@@ -312,6 +319,6 @@
         </div>
     </div>
     <script src="https://cdn.jsdelivr.net/npm/gsap@3.13.0/dist/gsap.min.js"></script>
-    <script src="./js/main.js?2026101312"></script>
+    <script src="./js/main.js?2026101412"></script>
 </body>
 </html>

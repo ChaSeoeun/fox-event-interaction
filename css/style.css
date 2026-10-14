@@ -3,7 +3,25 @@
     padding: 0;
     box-sizing: border-box;
     -webkit-user-drag: none;
-    user-select: none;
+}
+
+p,
+li,
+th,
+td,
+caption,
+h1,
+h2,
+.intro-guide,
+.enter-sub,
+.ticket-copy,
+.ticket-when,
+.ticket-guide,
+.freddy-bubble,
+.map-group,
+.memo-table {
+    -webkit-user-select: text;
+    user-select: text;
 }
 
 html,
@@ -181,9 +199,9 @@ button {
 
 .enter-sub {
     margin-top: 16px;
-    font-size: 10px;
+    font-size: 14px;
     font-weight: 800;
-    letter-spacing: 3px;
+    letter-spacing: 0.08em;
     opacity: .9;
     text-shadow: 0 2px 5px rgba(0, 0, 0, .4);
 }
@@ -330,6 +348,65 @@ button {
     display: none;
 }
 
+.blind {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    margin: -1px;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    white-space: nowrap;
+    border: 0;
+}
+
+.event-shortcuts {
+    position: absolute;
+    left: 12px;
+    top: 12px;
+    z-index: 8;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 8px;
+}
+
+.event-shortcuts button {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    margin: -1px;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    white-space: nowrap;
+    border: 0;
+    background: #075ecf;
+    color: #fff;
+    font: inherit;
+    font-weight: 800;
+    cursor: pointer;
+}
+
+.event-shortcuts button:focus {
+    position: static;
+    width: auto;
+    height: auto;
+    margin: 0;
+    padding: 12px 18px;
+    overflow: visible;
+    clip: auto;
+    border: 3px solid #fff;
+    border-radius: 50px;
+    outline: 3px solid #075ecf;
+    outline-offset: 2px;
+}
+
+.modal:focus,
+.map-overlay:focus {
+    outline: none;
+}
+
 .control-hint {
     position: absolute;
     left: 50%;
@@ -446,6 +523,7 @@ button {
 }
 
 .upcoming-event {
+    position: relative;
     width: min(520px, 100%);
 }
 
@@ -456,6 +534,7 @@ button {
 }
 
 .ticket-pop {
+    position: relative;
     display: flex;
     flex-direction: column;
     align-items: center;
@@ -544,7 +623,7 @@ button {
     text-align: center;
 }
 
-.ticket-copy h3 {
+.ticket-copy h2 {
     margin: 0 0 1cqw;
     font-size: 3.2cqw;
     font-weight: 900;
@@ -572,28 +651,28 @@ button {
     text-align: center;
 }
 
-.class-modal .ticket-copy h3,
+.class-modal .ticket-copy h2,
 .class-modal .ticket-copy p,
 .class-modal .ticket-when,
 .class-modal .ticket-guide {
     color: #e21862;
 }
 
-.race-modal .ticket-copy h3,
+.race-modal .ticket-copy h2,
 .race-modal .ticket-copy p,
 .race-modal .ticket-when,
 .race-modal .ticket-guide {
     color: #2b2b2b;
 }
 
-.speech-modal .ticket-copy h3,
+.speech-modal .ticket-copy h2,
 .speech-modal .ticket-copy p,
 .speech-modal .ticket-when,
 .speech-modal .ticket-guide {
     color: #d62441;
 }
 
-.dub-modal .ticket-copy h3,
+.dub-modal .ticket-copy h2,
 .dub-modal .ticket-copy p,
 .dub-modal .ticket-when,
 .dub-modal .ticket-guide {
@@ -640,17 +719,79 @@ button {
 }
 
 .modal-close {
-    margin-top: 22px;
-    min-width: 140px;
-    height: 52px;
-    padding: 0 28px;
+    position: absolute;
+    top: -30px;
+    right: -25px;
+    z-index: 2;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 48px;
+    height: 48px;
+    padding: 0;
     border: 3px solid #fff;
+    border-radius: 50%;
+    background: #fff;
+    color: #075ecf;
+    font-size: 0;
+    cursor: pointer;
+    box-shadow: 0 6px 16px rgba(0, 0, 0, .25);
+}
+
+.modal-close::before {
+    content: "×";
+    font-size: 34px;
+    font-weight: 700;
+    line-height: 1;
+}
+
+.modal-close:hover {
+    background: #e8f2ff;
+}
+
+.modal-close:focus-visible {
+    outline: 3px solid #fff;
+    outline-offset: 3px;
+}
+
+/* 탭으로 포커스될 때만 보이게 */
+.ticket-link {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    margin: -1px;
+    padding: 0;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    white-space: nowrap;
+    border: 0;
+}
+
+.ticket-link:focus-visible {
+    position: static;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: auto;
+    height: auto;
+    min-height: 48px;
+    margin: 14px 0 0;
+    padding: 0 22px;
+    overflow: visible;
+    clip: auto;
     border-radius: 50px;
     background: #fff;
     color: #075ecf;
     font-size: 16px;
     font-weight: 800;
-    cursor: pointer;
+    text-decoration: underline;
+    text-underline-offset: 3px;
+    outline: 3px solid #fff;
+    outline-offset: 3px;
+}
+
+.ticket-link[hidden] {
+    display: none;
 }
 
 .map-overlay {
@@ -955,24 +1096,8 @@ button {
 }
 
 @media (max-width: 1025px) {
-    .modal-close {
-        position: absolute;
-        top: 16px;
-        right: 16px;
-        z-index: 2;
-        width: 44px;
-        min-width: 0;
-        height: 44px;
-        margin-top: 0;
-        padding: 0;
-        border-radius: 50%;
-        font-size: 0;
-    }
-
-    .modal-close::before {
-        content: "×";
-        font-size: 32px;
-        line-height: 1;
+    .event-shortcuts {
+        display: none;
     }
 
     .section01 {
@@ -1188,7 +1313,7 @@ button {
     .dub-modal .ticket-stub { top: 0; width: 100%; height: 76.57%; }
     .dub-modal .ticket-main { left: 0; top: 76.45%; width: 100%; height: 23.77%; }
 
-    .ticket-copy h3 {
+    .ticket-copy h2 {
         font-size: 7cqw;
     }
 
@@ -1225,7 +1350,7 @@ button {
     }
 }
 
-/* 아이패드 프로 13형 가로(1376) 이하이면서 터치가 주 입력일 때만. 맥북은 pointer: fine */
+/* 아이패드 프로 13형 가로(1376)까지, 터치 화면만 */
 @media (max-width: 1376px) and (hover: none) and (pointer: coarse) {
     .bubble-pc {
         display: none;

@@ -1,4 +1,48 @@
 document.addEventListener('DOMContentLoaded', function () {
+    // 동작 줄이기가 켜져 있으면 반복 연출은 끄고, 나머지 애니메이션은 바로 끝낸다
+    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+        const origTo = gsap.to;
+        const origFromTo = gsap.fromTo;
+        const origTimeline = gsap.timeline;
+        const origDelayedCall = gsap.delayedCall;
+
+        function stripMotion(vars) {
+            const next = Object.assign({}, vars);
+            next.duration = 0;
+            next.delay = 0;
+            next.repeat = 0;
+            next.ease = 'none';
+            return next;
+        }
+
+        gsap.to = function (targets, vars) {
+            if (vars && vars.repeat === -1) return gsap.set(targets, {});
+            return origTo.call(gsap, targets, stripMotion(vars));
+        };
+
+        gsap.fromTo = function (targets, fromVars, toVars) {
+            if (toVars && toVars.repeat === -1) return gsap.set(targets, fromVars);
+            return origFromTo.call(gsap, targets, fromVars, stripMotion(toVars));
+        };
+
+        gsap.timeline = function (vars) {
+            const tl = origTimeline.call(gsap, vars);
+            const origTlTo = tl.to.bind(tl);
+            const origTlFromTo = tl.fromTo.bind(tl);
+            tl.to = function (targets, tweenVars) {
+                return origTlTo(targets, stripMotion(tweenVars), 0);
+            };
+            tl.fromTo = function (targets, fromVars, toVars) {
+                return origTlFromTo(targets, fromVars, stripMotion(toVars), 0);
+            };
+            return tl;
+        };
+
+        gsap.delayedCall = function (delay, callback, params) {
+            return origDelayedCall.call(gsap, 0, callback, params);
+        };
+    }
+
     const intro = document.querySelector('.event-intro');
     const parkStage = document.querySelector('.park-stage');
     const enterBtn = document.querySelector('.enter-btn');
@@ -284,8 +328,8 @@ document.addEventListener('DOMContentLoaded', function () {
     });
     parkMap.addEventListener('load', layoutPark);
 
-    parkWorld.addEventListener('click', function (e) {
-        const box = e.target.closest('.mo-att');
+    section01.addEventListener('click', function (e) {
+        const box = e.target.closest('[data-att]');
         if (!box) return;
         const item = attractions.find(function (att) {
             return att.el.classList.contains(box.dataset.att + '-att');
@@ -325,6 +369,7 @@ document.addEventListener('DOMContentLoaded', function () {
     let frame = 0;
     let frameTime = 0;
     let modalOpen = false;
+    let restoreFocus = null;
 
     Object.values(sprites).flat().forEach(function (src) {
         new Image().src = src;
@@ -452,18 +497,53 @@ document.addEventListener('DOMContentLoaded', function () {
         return pos.x >= left && pos.x <= right && pos.y >= top && pos.y <= bottom;
     }
 
+    function isFocusable(el) {
+        if (el.closest('[hidden]')) return false;
+        let node = el;
+        while (node && node !== document.body) {
+            const style = window.getComputedStyle(node);
+            if (style.display === 'none' || style.visibility === 'hidden') return false;
+            node = node.parentElement;
+        }
+        return true;
+    }
+
+    function focusableIn(root) {
+        return Array.from(root.querySelectorAll('a[href], button:not([disabled]), input:not([disabled]), select:not([disabled]), textarea:not([disabled]), [tabindex]:not([tabindex="-1"])')).filter(isFocusable);
+    }
+
+    function setBackgroundInert(except) {
+        document.querySelector('.event-wrap').inert = true;
+        document.querySelectorAll('.modal, .map-overlay').forEach(function (el) {
+            el.inert = el !== except;
+        });
+    }
+
+    function clearBackgroundInert() {
+        document.querySelector('.event-wrap').inert = false;
+        document.querySelectorAll('.modal, .map-overlay').forEach(function (el) {
+            el.inert = false;
+        });
+    }
+
     function openModal(item) {
         modalOpen = true;
         target = null;
         releaseKeys();
+        restoreFocus = document.activeElement;
         const ticket = item.modal.querySelector('.ticket');
         if (ticket) resetTicket(ticketState(ticket));
         item.modal.hidden = false;
+        setBackgroundInert(item.modal);
+        item.modal.querySelector('.modal-close').focus();
     }
 
     function closeModal(item) {
         modalOpen = false;
         item.modal.hidden = true;
+        clearBackgroundInert();
+        if (restoreFocus && restoreFocus.focus) restoreFocus.focus();
+        restoreFocus = null;
     }
 
     attractions.forEach(function (item) {
@@ -761,10 +841,13 @@ document.addEventListener('DOMContentLoaded', function () {
         releaseKeys();
         hideBubble();
         calendarBtn.setAttribute('aria-expanded', 'true');
+        restoreFocus = calendarBtn;
 
         unfold.p = 0;
         unfold.edge = 0;
         calendarMap.hidden = false;
+        setBackgroundInert(calendarMap);
+        calendarMap.focus();
         gsap.set(mapBackdrop, { opacity: 0 });
         gsap.set(mapDismiss, { autoAlpha: 0 });
         gsap.set(scheduleItems, { autoAlpha: 1 });
@@ -838,8 +921,11 @@ document.addEventListener('DOMContentLoaded', function () {
                 calendarMap.hidden = true;
                 mapState = 'closed';
                 modalOpen = false;
+                clearBackgroundInert();
                 calendarBtn.setAttribute('aria-expanded', 'false');
-                calendarBtn.focus();
+                if (restoreFocus && restoreFocus.focus) restoreFocus.focus();
+                else calendarBtn.focus();
+                restoreFocus = null;
             }
         });
 
@@ -869,7 +955,34 @@ document.addEventListener('DOMContentLoaded', function () {
     mapBackdrop.addEventListener('click', closeCalendarMap);
     mapDismiss.addEventListener('click', closeCalendarMap);
     window.addEventListener('keydown', function (e) {
-        if (e.key === 'Escape') closeCalendarMap();
+        if (e.key === 'Escape') {
+            if (mapState !== 'closed') closeCalendarMap();
+            else {
+                const openItem = attractions.find(function (item) {
+                    return !item.modal.hidden;
+                });
+                if (openItem) closeModal(openItem);
+            }
+            return;
+        }
+
+        if (e.key !== 'Tab') return;
+        const dialog = document.querySelector('.modal:not([hidden]), .map-overlay:not([hidden])');
+        if (!dialog) return;
+        const items = focusableIn(dialog);
+        if (!items.length) {
+            e.preventDefault();
+            return;
+        }
+        const first = items[0];
+        const last = items[items.length - 1];
+        if (e.shiftKey && (document.activeElement === first || document.activeElement === dialog)) {
+            e.preventDefault();
+            last.focus();
+        } else if (!e.shiftKey && (document.activeElement === last || document.activeElement === dialog)) {
+            e.preventDefault();
+            first.focus();
+        }
     });
     memoTab.addEventListener('click', showTable);
     memoFloat.addEventListener('click', showTable);
